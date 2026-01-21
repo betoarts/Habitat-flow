@@ -7,6 +7,7 @@ import { AiAssistant } from './pages/AiAssistant';
 import { Profile } from './pages/Profile';
 import { Onboarding } from './pages/Onboarding';
 import { Settings } from './pages/Settings';
+import { Support } from './pages/Support';
 import { SplashScreen } from './components/SplashScreen';
 import { AchievementPopup } from './components/AchievementPopup';
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -176,7 +177,9 @@ const MainApp = () => {
       case 'profile':
         return <Profile user={user} habits={habits} onOpenSettings={() => setCurrentTab('settings')} />;
       case 'settings':
-        return <Settings onBack={() => setCurrentTab('profile')} user={user} />;
+        return <Settings onBack={() => setCurrentTab('profile')} onOpenSupport={() => setCurrentTab('support')} user={user} />;
+      case 'support':
+        return <Support onBack={() => setCurrentTab('settings')} />;
       default:
         return <Home user={user} habits={habits} onToggleHabit={toggleHabit} onAddHabit={() => setShowAddModal(true)} onEditHabit={handleEditHabit} />;
     }

@@ -6,10 +6,11 @@ import { editUserProfileImage } from '../services/geminiService';
 
 interface SettingsProps {
   onBack: () => void;
+  onOpenSupport: () => void;
   user: UserType;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ onBack, user }) => {
+export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user }) => {
   const { updateUser } = useAppContext();
   const [notifications, setNotifications] = useState(true);
   
@@ -319,7 +320,10 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, user }) => {
         <section>
           <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 ml-1">Mais</h2>
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
-             <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+             <button 
+               onClick={onOpenSupport}
+               className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+             >
                <div className="flex items-center gap-3">
                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-500">
                     <HelpCircle size={20} />
