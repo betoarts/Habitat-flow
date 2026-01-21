@@ -1,0 +1,7 @@
+{
+  "name": "HabitFlow",
+  "description": "An AI-powered habit tracker focused on consistency, featuring adaptive habits, smart streaks, and behavioral analysis.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
