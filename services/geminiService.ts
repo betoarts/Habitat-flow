@@ -1,13 +1,48 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Habit, User, HabitCategory, ChatMessage } from "../types";
 
-// Initialize Gemini Client only if API_KEY is available
-// This prevents the app from crashing when no API key is configured
-const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
+// Helper function to get API key from localStorage or environment
+const getApiKey = (): string | null => {
+  // Priority: localStorage > process.env
+  if (typeof window !== 'undefined') {
+    const savedKey = localStorage.getItem('habitflow_gemini_api_key');
+    if (savedKey) return savedKey;
+  }
+  return process.env.API_KEY || null;
+};
+
+// Function to check if API key is available
+export const hasApiKey = (): boolean => {
+  return !!getApiKey();
+};
+
+// Function to set API key in localStorage
+export const setApiKey = (key: string): void => {
+  if (typeof window !== 'undefined') {
+    if (key) {
+      localStorage.setItem('habitflow_gemini_api_key', key);
+    } else {
+      localStorage.removeItem('habitflow_gemini_api_key');
+    }
+  }
+};
+
+// Function to get the current API key (for display purposes)
+export const getCurrentApiKey = (): string => {
+  return getApiKey() || '';
+};
+
+// Create Gemini client lazily to use the latest API key
+const getAiClient = (): GoogleGenAI | null => {
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+  return new GoogleGenAI({ apiKey });
+};
 
 export const getBehavioralAnalysis = async (habits: Habit[], user: User): Promise<string> => {
-  if (!process.env.API_KEY) {
-    return "Simulação: Configure sua API Key para receber análises reais. Com base nos seus dados simulados, você tem mantido uma boa constância em leitura, mas a hidratação precisa de atenção nos fins de semana.";
+  const ai = getAiClient();
+  if (!ai) {
+    return "Simulação: Configure sua API Key nas Configurações para receber análises reais. Com base nos seus dados simulados, você tem mantido uma boa constância em leitura, mas a hidratação precisa de atenção nos fins de semana.";
   }
 
   try {
@@ -46,7 +81,8 @@ interface ChatResponse {
 }
 
 export const chatWithAssistant = async (message: string, history: string, user: User, habits: Habit[]): Promise<ChatResponse> => {
-  if (!process.env.API_KEY) {
+  const ai = getAiClient();
+  if (!ai) {
     // Simulation fallback
     if (message.toLowerCase().includes('criar') || message.toLowerCase().includes('sugira')) {
        return {
@@ -128,8 +164,9 @@ interface OnboardingInsight {
 }
 
 export const generateOnboardingInsight = async (userName: string, goals: HabitCategory[]): Promise<OnboardingInsight> => {
+  const ai = getAiClient();
   // Fallback for no API Key
-  if (!process.env.API_KEY) {
+  if (!ai) {
     return new Promise(resolve => setTimeout(() => resolve({
       message: `Olá ${userName}! Excelente escolha focar em ${goals[0]}. Vamos começar devagar para ir longe.`,
       habitName: "Caminhada Leve",
@@ -182,8 +219,9 @@ export const generateOnboardingInsight = async (userName: string, goals: HabitCa
 };
 
 export const editUserProfileImage = async (base64Image: string, prompt: string): Promise<string> => {
-  if (!process.env.API_KEY) {
-    throw new Error("API Key ausente.");
+  const ai = getAiClient();
+  if (!ai) {
+    throw new Error("API Key ausente. Configure nas Configurações.");
   }
 
   try {
@@ -225,7 +263,8 @@ export const editUserProfileImage = async (base64Image: string, prompt: string):
 };
 
 export const generateSmartNotification = async (userName: string, pendingHabits: Habit[]): Promise<string> => {
-  if (!process.env.API_KEY || pendingHabits.length === 0) {
+  const ai = getAiClient();
+  if (!ai || pendingHabits.length === 0) {
     return "";
   }
 

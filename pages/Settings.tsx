@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { ArrowLeft, Moon, Bell, User, Trash2, Shield, ChevronRight, HelpCircle, LogOut, Camera, Save, Upload, Sparkles, Loader2, Check } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, Moon, Bell, User, Trash2, Shield, ChevronRight, HelpCircle, LogOut, Camera, Save, Upload, Sparkles, Loader2, Check, Key, Eye, EyeOff } from 'lucide-react';
 import { User as UserType } from '../types';
 import { useAppContext } from '../context/AppContext';
-import { editUserProfileImage } from '../services/geminiService';
+import { editUserProfileImage, setApiKey, getCurrentApiKey, hasApiKey } from '../services/geminiService';
 
 interface SettingsProps {
   onBack: () => void;
@@ -28,6 +28,22 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAiInput, setShowAiInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // API Key State
+  const [apiKey, setApiKeyState] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [apiKeySaved, setApiKeySaved] = useState(false);
+  const [hasKey, setHasKey] = useState(false);
+
+  // Load API key status on mount
+  useEffect(() => {
+    setHasKey(hasApiKey());
+    // Only show masked preview, not actual key
+    const currentKey = getCurrentApiKey();
+    if (currentKey) {
+      setApiKeyState(''); // Don't expose the actual key
+    }
+  }, []);
 
   const toggleDarkMode = () => {
     const newMode = !darkMode;
@@ -89,10 +105,26 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
       setShowAiInput(false);
       setAiPrompt('');
     } catch (error) {
-      alert("Erro ao editar imagem. Tente novamente.");
+      alert("Erro ao editar imagem. Verifique sua API Key nas Configurações.");
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleSaveApiKey = () => {
+    setApiKey(apiKey.trim());
+    setApiKeySaved(true);
+    setHasKey(!!apiKey.trim());
+    setTimeout(() => {
+      setApiKeySaved(false);
+      setApiKeyState('');
+    }, 2000);
+  };
+
+  const handleRemoveApiKey = () => {
+    setApiKey('');
+    setApiKeyState('');
+    setHasKey(false);
   };
 
   if (isEditing) {
@@ -312,6 +344,88 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
                >
                  <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-200 shadow-sm ${darkMode ? 'left-6' : 'left-1'}`} />
                </button>
+            </div>
+          </div>
+        </section>
+
+        {/* AI Integrations Section */}
+        <section>
+          <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 ml-1">Integrações IA</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+            
+            {/* API Key Status */}
+            <div className="p-4 border-b border-gray-50 dark:border-gray-700">
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${hasKey ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-500' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500'}`}>
+                  <Key size={20} />
+                </div>
+                <div className="flex-1">
+                  <span className="font-medium text-gray-900 dark:text-white">Gemini API Key</span>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {hasKey ? '✓ Configurada' : 'Necessária para recursos de IA'}
+                  </p>
+                </div>
+                {hasKey && (
+                  <button
+                    onClick={handleRemoveApiKey}
+                    className="text-xs text-red-500 hover:text-red-600 font-medium"
+                  >
+                    Remover
+                  </button>
+                )}
+              </div>
+
+              {/* API Key Input */}
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <input
+                    type={showApiKey ? 'text' : 'password'}
+                    value={apiKey}
+                    onChange={(e) => setApiKeyState(e.target.value)}
+                    placeholder={hasKey ? '••••••••••••••••' : 'Cole sua API Key aqui'}
+                    className="w-full p-3 pr-10 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <button
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <button
+                  onClick={handleSaveApiKey}
+                  disabled={!apiKey.trim() || apiKeySaved}
+                  className={`px-4 rounded-xl font-medium text-sm transition-all flex items-center gap-1.5 ${
+                    apiKeySaved 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                  }`}
+                >
+                  {apiKeySaved ? <Check size={16} /> : <Save size={16} />}
+                  {apiKeySaved ? 'Salvo!' : 'Salvar'}
+                </button>
+              </div>
+
+              {/* Help text */}
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                Obtenha sua API Key em <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">aistudio.google.com/apikey</a>
+              </p>
+            </div>
+
+            {/* AI Features Info */}
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/10 dark:to-blue-900/10">
+              <div className="flex items-start gap-3">
+                <Sparkles className="text-purple-500 mt-0.5" size={18} />
+                <div>
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200">Recursos desbloqueados com API Key:</p>
+                  <ul className="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-0.5">
+                    <li>• Chat com AI Coach para sugestões personalizadas</li>
+                    <li>• Análise comportamental inteligente</li>
+                    <li>• Notificações motivacionais dinâmicas</li>
+                    <li>• Edição de foto com IA</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
