@@ -68,7 +68,7 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
 
   const handleShare = async (e: React.MouseEvent, habit: Habit) => {
     e.stopPropagation();
-    const text = `🔥 Estou mantendo uma sequência de ${habit.streak} dias no hábito "${habit.name}"! Junte-se a mim no HabitFlow. 🚀`;
+    const text = `🔥 Estou mantendo uma sequência de ${habit.streak} dias no hábito "${habit.name}"! Junte-se a mim no HabitFlow. 🚀\n\nhttps://habitflow.servicestec.pro/`;
 
     if (navigator.share) {
       try {
