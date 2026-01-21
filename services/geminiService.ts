@@ -1,8 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Habit, User, HabitCategory, ChatMessage } from "../types";
 
-// Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Initialize Gemini Client only if API_KEY is available
+// This prevents the app from crashing when no API key is configured
+const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
 export const getBehavioralAnalysis = async (habits: Habit[], user: User): Promise<string> => {
   if (!process.env.API_KEY) {
