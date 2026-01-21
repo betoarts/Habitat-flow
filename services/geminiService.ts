@@ -85,15 +85,15 @@ export const chatWithAssistant = async (message: string, history: string, user: 
   if (!ai) {
     // Simulation fallback
     if (message.toLowerCase().includes('criar') || message.toLowerCase().includes('sugira')) {
-       return {
-         text: "Como estou em modo simulação, aqui está uma sugestão baseada no seu perfil:",
-         suggestedHabits: [{
-           name: "Meditação Matinal",
-           category: HabitCategory.MIND,
-           goal: "5 minutos",
-           reason: "Para melhorar seu foco diário."
-         }]
-       };
+      return {
+        text: "Como estou em modo simulação, aqui está uma sugestão baseada no seu perfil:",
+        suggestedHabits: [{
+          name: "Meditação Matinal",
+          category: HabitCategory.MIND,
+          goal: "5 minutos",
+          reason: "Para melhorar seu foco diário."
+        }]
+      };
     }
     return { text: "Simulação: O modo chat requer uma API Key válida. Eu posso ajudar a ajustar suas metas ou sugerir novos hábitos!" };
   }
@@ -151,8 +151,17 @@ export const chatWithAssistant = async (message: string, history: string, user: 
     }
     return { text: "Não entendi, pode repetir?" };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Chat Error:", error);
+
+    // Check if it's a quota error
+    if (error?.message?.includes('quota') || error?.message?.includes('RESOURCE_EXHAUSTED') || error?.status === 'RESOURCE_EXHAUSTED') {
+      return {
+        text: "QUOTA_EXCEEDED",
+        suggestedHabits: []
+      };
+    }
+
     return { text: "Tive um problema de conexão. Tente novamente." };
   }
 };
@@ -254,7 +263,7 @@ export const editUserProfileImage = async (base64Image: string, prompt: string):
         }
       }
     }
-    
+
     throw new Error("Nenhuma imagem gerada.");
   } catch (error) {
     console.error("Image Edit Error:", error);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChatMessage, Habit, User, SuggestedHabit, HabitCategory } from '../types';
 import { chatWithAssistant, getBehavioralAnalysis } from '../services/geminiService';
 import { useAppContext } from '../context/AppContext';
-import { Send, Bot, Sparkles, Plus, Check, PlayCircle, Trash2 } from 'lucide-react';
+import { Send, Bot, Sparkles, Plus, Check, PlayCircle, Trash2, Bell, X } from 'lucide-react';
 import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';
 import SEO from '../components/SEO';
 
@@ -35,6 +35,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [addedHabitIds, setAddedHabitIds] = useState<Set<string>>(new Set());
+  const [quotaError, setQuotaError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -68,6 +69,13 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
 
     // Pass User and Habits context to service
     const response = await chatWithAssistant(input, historyText, user, habits);
+
+    // Check for quota error
+    if (response.text === "QUOTA_EXCEEDED") {
+      setQuotaError(true);
+      setLoading(false);
+      return;
+    }
 
     const aiMsg: ChatMessage = {
       id: (Date.now() + 1).toString(),
@@ -130,6 +138,54 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Quota Error Banner */}
+        {quotaError && (
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-[1px] shadow-lg animate-slide-up">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 w-24 h-24 bg-orange-100 dark:bg-orange-900/20 rounded-full blur-xl"></div>
+
+              <div className="relative z-10">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="min-w-[32px] h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400">
+                    <Bell size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wide mb-1">Limite de Quota Atingido</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+                      Você atingiu o limite diário de 20 requisições da API gratuita do Gemini. A quota reseta em aproximadamente 24 horas.
+                    </p>
+                    <div className="space-y-2">
+                      <a
+                        href="https://aistudio.google.com/apikey"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        🔑 Obter nova API Key
+                      </a>
+                      <span className="text-gray-400 mx-2">•</span>
+                      <a
+                        href="https://ai.dev/rate-limit"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        📊 Verificar uso atual
+                      </a>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setQuotaError(false)}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {messages.map((msg) => (
           <div
             key={msg.id}
