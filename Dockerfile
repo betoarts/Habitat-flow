@@ -1,6 +1,6 @@
 # ==========================================
 # HabitFlow - Dockerfile for EasyPanel
-# Multi-stage build for React/Vite + Nginx
+# Multi-stage build for React/Vite PWA + Nginx
 # ==========================================
 
 # Stage 1: Build the application
@@ -17,7 +17,7 @@ RUN npm install --legacy-peer-deps
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application (includes PWA assets generation)
 RUN npm run build
 
 # ==========================================
@@ -34,8 +34,11 @@ RUN rm -rf /usr/share/nginx/html/* && rm /etc/nginx/conf.d/default.conf
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built assets from builder stage
+# Copy built assets from builder stage (includes sw.js, manifest.webmanifest)
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy PWA icons from public folder
+COPY --from=builder /app/public /usr/share/nginx/html
 
 # Create a simple healthcheck file
 RUN echo "OK" > /usr/share/nginx/html/health.txt
