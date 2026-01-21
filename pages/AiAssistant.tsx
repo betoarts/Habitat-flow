@@ -4,6 +4,7 @@ import { chatWithAssistant, getBehavioralAnalysis } from '../services/geminiServ
 import { useAppContext } from '../context/AppContext';
 import { Send, Bot, Sparkles, Plus, Check, PlayCircle, Trash2 } from 'lucide-react';
 import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';
+import SEO from '../components/SEO';
 
 interface AiAssistantProps {
   user: User;
@@ -12,7 +13,7 @@ interface AiAssistantProps {
 
 export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
   const { addHabit } = useAppContext();
-  
+
   // Initialize from LocalStorage or Default Welcome Message
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const saved = localStorage.getItem('habitflow_chat_history');
@@ -64,7 +65,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
     setLoading(true);
 
     const historyText = messages.map(m => `${m.role === 'user' ? 'Usuário' : 'IA'}: ${m.text}`).join('\n');
-    
+
     // Pass User and Habits context to service
     const response = await chatWithAssistant(input, historyText, user, habits);
 
@@ -81,15 +82,15 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
   };
 
   const handleClearHistory = () => {
-    if(window.confirm("Deseja apagar todo o histórico da conversa?")) {
-        const resetMsg: ChatMessage = {
-            id: 'welcome-' + Date.now(),
-            role: 'model',
-            text: `Histórico limpo! Como posso ajudar agora, ${user.name}?`,
-            timestamp: Date.now()
-        };
-        setMessages([resetMsg]);
-        localStorage.removeItem('habitflow_chat_history');
+    if (window.confirm("Deseja apagar todo o histórico da conversa?")) {
+      const resetMsg: ChatMessage = {
+        id: 'welcome-' + Date.now(),
+        role: 'model',
+        text: `Histórico limpo! Como posso ajudar agora, ${user.name}?`,
+        timestamp: Date.now()
+      };
+      setMessages([resetMsg]);
+      localStorage.removeItem('habitflow_chat_history');
     }
   };
 
@@ -110,30 +111,34 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pb-24 relative transition-colors duration-300">
+      <SEO
+        title="IA Assistent | HabitFlow"
+        description="Converse com sua IA pessoal para criar e otimizar seus hábitos."
+      />
       <div className="px-6 pt-10 pb-4 bg-white dark:bg-gray-800 shadow-sm z-10 flex justify-between items-center transition-colors">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <Bot className="text-purple-600 dark:text-purple-400" />
           HabitFlow IA
         </h1>
-        <button 
-            onClick={handleClearHistory}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
-            title="Limpar histórico"
+        <button
+          onClick={handleClearHistory}
+          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+          title="Limpar histórico"
         >
-            <Trash2 size={18} />
+          <Trash2 size={18} />
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg) => (
-          <div 
-            key={msg.id} 
+          <div
+            key={msg.id}
             className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
           >
-            <div 
+            <div
               className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed mb-1 shadow-sm
-                ${msg.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-br-none' 
+                ${msg.role === 'user'
+                  ? 'bg-blue-600 text-white rounded-br-none'
                   : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-bl-none'
                 }`}
             >
@@ -151,45 +156,45 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
 
                   return (
                     <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30 shadow-sm flex items-center justify-between gap-3 relative overflow-hidden">
-                       {/* Left colored bar */}
-                       <div className={`absolute left-0 top-0 bottom-0 w-1 ${colorClass.replace('text-', 'bg-').split(' ')[0]}`}></div>
-                       
-                       <div className="flex items-center gap-3 pl-2 flex-1">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorClass.replace('text-', 'bg-opacity-20 ')}`}>
-                             <Icon size={18} className={colorClass.split(' ')[0]} />
-                          </div>
-                          <div>
-                             <p className="font-bold text-gray-800 dark:text-white text-sm">{habit.name}</p>
-                             <p className="text-xs text-gray-500 dark:text-gray-400">{habit.goal} • <span className="italic">{habit.reason}</span></p>
-                          </div>
-                       </div>
+                      {/* Left colored bar */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${colorClass.replace('text-', 'bg-').split(' ')[0]}`}></div>
 
-                       <button 
-                         onClick={() => handleAcceptHabit(habit, msg.id, idx)}
-                         disabled={isAdded}
-                         className={`p-2 rounded-full transition-all duration-300 flex items-center gap-1
-                           ${isAdded 
-                             ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 cursor-default px-3' 
-                             : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200 dark:shadow-blue-900/30'}
+                      <div className="flex items-center gap-3 pl-2 flex-1">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorClass.replace('text-', 'bg-opacity-20 ')}`}>
+                          <Icon size={18} className={colorClass.split(' ')[0]} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-800 dark:text-white text-sm">{habit.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{habit.goal} • <span className="italic">{habit.reason}</span></p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleAcceptHabit(habit, msg.id, idx)}
+                        disabled={isAdded}
+                        className={`p-2 rounded-full transition-all duration-300 flex items-center gap-1
+                           ${isAdded
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 cursor-default px-3'
+                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200 dark:shadow-blue-900/30'}
                          `}
-                       >
-                         {isAdded ? (
-                           <>
-                             <Check size={16} />
-                             <span className="text-xs font-bold">Adicionado</span>
-                           </>
-                         ) : (
-                           <Plus size={20} />
-                         )}
-                       </button>
+                      >
+                        {isAdded ? (
+                          <>
+                            <Check size={16} />
+                            <span className="text-xs font-bold">Adicionado</span>
+                          </>
+                        ) : (
+                          <Plus size={20} />
+                        )}
+                      </button>
                     </div>
                   );
                 })}
               </div>
             )}
-            
+
             <span className="text-[10px] text-gray-400 px-2">
-              {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
         ))}
@@ -207,7 +212,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
 
       {/* Suggested Actions */}
       <div className="px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
-        <button 
+        <button
           onClick={() => setInput("Analise minha rotina e sugira 2 novos hábitos.")}
           disabled={loading}
           className="whitespace-nowrap px-4 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors border border-purple-100 dark:border-purple-800/30"
@@ -215,7 +220,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
           <Sparkles size={14} />
           Sugerir Hábitos
         </button>
-        <button 
+        <button
           onClick={() => setInput("Crie um hábito de leitura para mim.")}
           disabled={loading}
           className="whitespace-nowrap px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors border border-blue-100 dark:border-blue-800/30"
@@ -235,7 +240,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
           placeholder="Ex: Crie um hábito para beber água..."
           className="flex-1 bg-gray-100 dark:bg-gray-700 dark:text-white border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
         />
-        <button 
+        <button
           onClick={handleSend}
           disabled={loading || !input.trim()}
           className="p-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 dark:shadow-blue-900/40 hover:bg-blue-700 disabled:opacity-50 disabled:shadow-none transition-all transform active:scale-95"

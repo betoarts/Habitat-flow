@@ -6,6 +6,7 @@ import { CATEGORY_COLORS, CATEGORY_ICONS } from '../constants';
 import { CheckCircle2, Circle, Plus, Flame, Bell, Clock, Sparkles, X, Share2, Pencil } from 'lucide-react';
 import Confetti from 'react-dom-confetti';
 import { useAppContext } from '../context/AppContext';
+import SEO from '../components/SEO';
 
 interface HomeProps {
   user: User;
@@ -88,6 +89,10 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
 
   return (
     <div className="relative h-full bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
+      <SEO
+        title="Home | HabitFlow"
+        description="Gerencie seus hábitos diários, acompanhe seu progresso e mantenha-se motivado com o HabitFlow."
+      />
 
       {/* Header - Fixed Layer on Top - Increased z-index to 30 to stay above content elements */}
       <div className="absolute top-0 left-0 right-0 z-30 bg-white dark:bg-gray-800 rounded-b-[2.5rem] shadow-md px-4 sm:px-6 pt-2 sm:pt-10 pb-5 sm:pb-8 transition-colors duration-300">
