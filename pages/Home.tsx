@@ -33,7 +33,7 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
   const { smartNotification, dismissNotification } = useAppContext();
   const [completedAnim, setCompletedAnim] = useState<string | null>(null);
   const [visibleRemindersId, setVisibleRemindersId] = useState<string | null>(null);
-  
+
   const today = format(new Date(), 'yyyy-MM-dd');
   const todayFormatted = format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR });
 
@@ -62,14 +62,14 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
   };
 
   const handleEdit = (e: React.MouseEvent, habit: Habit) => {
-      e.stopPropagation();
-      onEditHabit(habit);
+    e.stopPropagation();
+    onEditHabit(habit);
   };
 
   const handleShare = async (e: React.MouseEvent, habit: Habit) => {
     e.stopPropagation();
     const text = `🔥 Estou mantendo uma sequência de ${habit.streak} dias no hábito "${habit.name}"! Junte-se a mim no HabitFlow. 🚀`;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -88,9 +88,9 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
 
   return (
     <div className="relative h-full bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
-      
+
       {/* Header - Fixed Layer on Top - Increased z-index to 30 to stay above content elements */}
-      <div className="absolute top-0 left-0 right-0 z-30 bg-white dark:bg-gray-800 rounded-b-[2.5rem] shadow-md px-6 pt-10 pb-8 transition-colors duration-300">
+      <div className="absolute top-0 left-0 right-0 z-30 bg-white dark:bg-gray-800 rounded-b-[2.5rem] shadow-md px-4 sm:px-6 pt-2 sm:pt-10 pb-5 sm:pb-8 transition-colors duration-300">
         <div className="flex justify-between items-center mb-4">
           <div>
             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wide first-letter:capitalize">{todayFormatted}</p>
@@ -100,11 +100,11 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
             <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
           </div>
         </div>
-        
+
         {/* Daily Progress Card */}
         <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/40 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
-          
+
           <div className="flex justify-between items-end relative z-10">
             <div>
               <p className="text-blue-100 text-sm font-medium mb-1">Progresso Diário</p>
@@ -114,13 +114,13 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
               </p>
             </div>
             <div className="h-14 w-14 rounded-full border-4 border-white/30 flex items-center justify-center backdrop-blur-sm">
-               <Flame className={`${progress > 0 ? 'text-yellow-300 fill-yellow-300' : 'text-white/50'}`} size={24} />
+              <Flame className={`${progress > 0 ? 'text-yellow-300 fill-yellow-300' : 'text-white/50'}`} size={24} />
             </div>
           </div>
-          
+
           {/* Progress Bar */}
           <div className="mt-4 h-2 bg-black/20 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-white rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${progress}%` }}
             />
@@ -129,41 +129,41 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
       </div>
 
       {/* Scrollable Content Area - Scrolls BEHIND the header */}
-      <div className="h-full overflow-y-auto pt-[300px] pb-24 px-6 scroll-smooth">
-        
+      <div className="h-full overflow-y-auto pt-[250px] sm:pt-[300px] pb-24 px-4 sm:px-6 scroll-smooth">
+
         {/* AI Smart Notification */}
         {smartNotification && (
-           <div className="mb-4 animate-slide-up relative z-10">
-             <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl p-[1px] shadow-lg shadow-purple-200 dark:shadow-purple-900/30">
-               <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 relative overflow-hidden">
-                 <div className="absolute -right-4 -top-4 w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full blur-xl"></div>
-                 
-                 <div className="flex items-start gap-3 relative z-10">
-                   <div className="min-w-[32px] h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400">
-                     <Sparkles size={16} />
-                   </div>
-                   <div className="flex-1">
-                     <p className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide mb-0.5">Dica do Coach</p>
-                     <p className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-tight">
-                       {smartNotification}
-                     </p>
-                   </div>
-                   <button 
-                     onClick={dismissNotification}
-                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                   >
-                     <X size={16} />
-                   </button>
-                 </div>
-               </div>
-             </div>
-           </div>
+          <div className="mb-4 animate-slide-up relative z-10">
+            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl p-[1px] shadow-lg shadow-purple-200 dark:shadow-purple-900/30">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 relative overflow-hidden">
+                <div className="absolute -right-4 -top-4 w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full blur-xl"></div>
+
+                <div className="flex items-start gap-3 relative z-10">
+                  <div className="min-w-[32px] h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400">
+                    <Sparkles size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide mb-0.5">Dica do Coach</p>
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-tight">
+                      {smartNotification}
+                    </p>
+                  </div>
+                  <button
+                    onClick={dismissNotification}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Habits List Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-lg text-gray-800 dark:text-white">Hábitos de Hoje</h2>
-          <button 
+          <button
             onClick={onAddHabit}
             className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
           >
@@ -186,7 +186,7 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
               const hasReminders = habit.reminders && habit.reminders.length > 0;
 
               return (
-                <div 
+                <div
                   key={habit.id}
                   onClick={() => handleCheck(habit.id)}
                   className={`group flex items-center p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 cursor-pointer transition-all duration-300 active:scale-[0.98] relative overflow-visible
@@ -213,43 +213,43 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
                           className="p-1.5 rounded-full text-gray-300 dark:text-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                           title="Compartilhar Progresso"
                         >
-                           <Share2 size={14} />
+                          <Share2 size={14} />
                         </button>
 
-                         {/* Edit Button */}
+                        {/* Edit Button */}
                         <button
                           onClick={(e) => handleEdit(e, habit)}
                           className="p-1.5 rounded-full text-gray-300 dark:text-gray-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
                           title="Editar Hábito"
                         >
-                           <Pencil size={14} />
+                          <Pencil size={14} />
                         </button>
 
                         {/* Reminder Bell & Tooltip */}
                         {hasReminders && (
                           <div className="relative">
-                            <button 
+                            <button
                               onClick={(e) => toggleReminders(e, habit.id)}
                               className={`p-1 rounded-full transition-all duration-300 ${visibleRemindersId === habit.id ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-300 dark:text-gray-600 hover:text-blue-500 dark:hover:text-blue-400'}`}
                             >
                               <Bell size={14} className={visibleRemindersId === habit.id ? 'fill-blue-600 dark:fill-blue-400' : ''} />
                             </button>
-                            
+
                             {visibleRemindersId === habit.id && (
-                              <div 
+                              <div
                                 className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-700 rounded-xl shadow-xl border border-gray-100 dark:border-gray-600 p-3 min-w-[140px] z-50 animate-fade-in"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 dark:text-gray-300 mb-2">
-                                   <Clock size={12} />
-                                   <span>Lembretes</span>
+                                  <Clock size={12} />
+                                  <span>Lembretes</span>
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {habit.reminders.map((time, idx) => (
-                                        <span key={idx} className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-md font-medium border border-blue-100 dark:border-blue-900/30">
-                                            {time}
-                                        </span>
-                                    ))}
+                                  {habit.reminders.map((time, idx) => (
+                                    <span key={idx} className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-md font-medium border border-blue-100 dark:border-blue-900/30">
+                                      {time}
+                                    </span>
+                                  ))}
                                 </div>
                                 {/* Little Arrow */}
                                 <div className="absolute -top-1 left-2 w-2 h-2 bg-white dark:bg-gray-700 border-t border-l border-gray-100 dark:border-gray-600 transform rotate-45"></div>
@@ -259,12 +259,12 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 mt-1 relative z-20">
                       <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md">
                         {habit.goal}
                       </span>
-                      
+
                       {habit.streak > 0 && (
                         <span className="text-xs text-orange-500 flex items-center gap-0.5 font-medium">
                           <Flame size={10} className="fill-orange-500" /> {habit.streak}
@@ -275,9 +275,9 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
 
                   {/* Checkbox */}
                   <div className="relative">
-                     <div className="absolute center">
-                       <Confetti active={ completedAnim === habit.id } config={ confettiConfig } />
-                     </div>
+                    <div className="absolute center">
+                      <Confetti active={completedAnim === habit.id} config={confettiConfig} />
+                    </div>
                     {isCompleted ? (
                       <CheckCircle2 size={28} className="text-green-500 fill-green-50" />
                     ) : (
