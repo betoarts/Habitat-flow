@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChatMessage, Habit, User, SuggestedHabit, HabitCategory } from '../types';
 import { chatWithAssistant, getBehavioralAnalysis } from '../services/geminiService';
 import { useAppContext } from '../context/AppContext';
-import { Send, Bot, Sparkles, Plus, Check, PlayCircle } from 'lucide-react';
+import { Send, Bot, Sparkles, Plus, Check, PlayCircle, Trash2 } from 'lucide-react';
 import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';
 
 interface AiAssistantProps {
@@ -12,14 +12,25 @@ interface AiAssistantProps {
 
 export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
   const { addHabit } = useAppContext();
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
+  
+  // Initialize from LocalStorage or Default Welcome Message
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem('habitflow_chat_history');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse chat history", e);
+      }
+    }
+    return [{
       id: 'welcome',
       role: 'model',
       text: `Olá ${user.name}! Sou seu assistente de hábitos. Posso analisar sua rotina e criar novos hábitos para você.`,
       timestamp: Date.now()
-    }
-  ]);
+    }];
+  });
+
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [addedHabitIds, setAddedHabitIds] = useState<Set<string>>(new Set());
@@ -31,6 +42,11 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
 
   useEffect(() => {
     scrollToBottom();
+  }, [messages, loading]);
+
+  // Persist messages to LocalStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('habitflow_chat_history', JSON.stringify(messages));
   }, [messages]);
 
   const handleSend = async () => {
@@ -64,12 +80,17 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
     setLoading(false);
   };
 
-  const generateInsight = async () => {
-    const prompt = "Analise meus hábitos atuais e sugira melhorias ou novos hábitos.";
-    setInput(prompt);
-    // Directly trigger logic as if user typed it, but we need to wait for state update in a real scenario. 
-    // Simplified here by calling handleSend via effect or direct call logic.
-    // For this implementation, let's just populate the input field for the user to confirm sending.
+  const handleClearHistory = () => {
+    if(window.confirm("Deseja apagar todo o histórico da conversa?")) {
+        const resetMsg: ChatMessage = {
+            id: 'welcome-' + Date.now(),
+            role: 'model',
+            text: `Histórico limpo! Como posso ajudar agora, ${user.name}?`,
+            timestamp: Date.now()
+        };
+        setMessages([resetMsg]);
+        localStorage.removeItem('habitflow_chat_history');
+    }
   };
 
   const handleAcceptHabit = (habit: SuggestedHabit, messageId: string, index: number) => {
@@ -88,12 +109,19 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 pb-24 relative">
-      <div className="px-6 pt-10 pb-4 bg-white shadow-sm z-10">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Bot className="text-purple-600" />
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pb-24 relative transition-colors duration-300">
+      <div className="px-6 pt-10 pb-4 bg-white dark:bg-gray-800 shadow-sm z-10 flex justify-between items-center transition-colors">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <Bot className="text-purple-600 dark:text-purple-400" />
           HabitFlow IA
         </h1>
+        <button 
+            onClick={handleClearHistory}
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+            title="Limpar histórico"
+        >
+            <Trash2 size={18} />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -103,10 +131,10 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
             className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
           >
             <div 
-              className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed mb-1
+              className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed mb-1 shadow-sm
                 ${msg.role === 'user' 
                   ? 'bg-blue-600 text-white rounded-br-none' 
-                  : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-none'
+                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-bl-none'
                 }`}
             >
               {msg.text}
@@ -122,7 +150,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
                   const colorClass = CATEGORY_COLORS[habit.category];
 
                   return (
-                    <div key={idx} className="bg-white p-3 rounded-xl border border-blue-100 shadow-sm flex items-center justify-between gap-3 relative overflow-hidden">
+                    <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30 shadow-sm flex items-center justify-between gap-3 relative overflow-hidden">
                        {/* Left colored bar */}
                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${colorClass.replace('text-', 'bg-').split(' ')[0]}`}></div>
                        
@@ -131,8 +159,8 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
                              <Icon size={18} className={colorClass.split(' ')[0]} />
                           </div>
                           <div>
-                             <p className="font-bold text-gray-800 text-sm">{habit.name}</p>
-                             <p className="text-xs text-gray-500">{habit.goal} • <span className="italic">{habit.reason}</span></p>
+                             <p className="font-bold text-gray-800 dark:text-white text-sm">{habit.name}</p>
+                             <p className="text-xs text-gray-500 dark:text-gray-400">{habit.goal} • <span className="italic">{habit.reason}</span></p>
                           </div>
                        </div>
 
@@ -141,8 +169,8 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
                          disabled={isAdded}
                          className={`p-2 rounded-full transition-all duration-300 flex items-center gap-1
                            ${isAdded 
-                             ? 'bg-green-100 text-green-600 cursor-default px-3' 
-                             : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200'}
+                             ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 cursor-default px-3' 
+                             : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200 dark:shadow-blue-900/30'}
                          `}
                        >
                          {isAdded ? (
@@ -167,7 +195,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white p-4 rounded-2xl rounded-bl-none shadow-sm border border-gray-100 flex gap-2">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-bl-none shadow-sm border border-gray-100 dark:border-gray-700 flex gap-2">
               <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
               <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-75"></span>
               <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-150"></span>
@@ -182,7 +210,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
         <button 
           onClick={() => setInput("Analise minha rotina e sugira 2 novos hábitos.")}
           disabled={loading}
-          className="whitespace-nowrap px-4 py-2 bg-purple-50 text-purple-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-purple-100 transition-colors border border-purple-100"
+          className="whitespace-nowrap px-4 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors border border-purple-100 dark:border-purple-800/30"
         >
           <Sparkles size={14} />
           Sugerir Hábitos
@@ -190,7 +218,7 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
         <button 
           onClick={() => setInput("Crie um hábito de leitura para mim.")}
           disabled={loading}
-          className="whitespace-nowrap px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors border border-blue-100"
+          className="whitespace-nowrap px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors border border-blue-100 dark:border-blue-800/30"
         >
           <PlayCircle size={14} />
           Começar Leitura
@@ -198,19 +226,19 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-gray-100 flex gap-2">
+      <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Ex: Crie um hábito para beber água..."
-          className="flex-1 bg-gray-100 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+          className="flex-1 bg-gray-100 dark:bg-gray-700 dark:text-white border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
         />
         <button 
           onClick={handleSend}
           disabled={loading || !input.trim()}
-          className="p-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 disabled:opacity-50 disabled:shadow-none transition-all transform active:scale-95"
+          className="p-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 dark:shadow-blue-900/40 hover:bg-blue-700 disabled:opacity-50 disabled:shadow-none transition-all transform active:scale-95"
         >
           <Send size={20} />
         </button>

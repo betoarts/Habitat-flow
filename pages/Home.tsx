@@ -89,8 +89,8 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
   return (
     <div className="relative h-full bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors duration-300">
       
-      {/* Header - Fixed Layer on Top */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-white dark:bg-gray-800 rounded-b-[2.5rem] shadow-md px-6 pt-10 pb-8 transition-colors duration-300">
+      {/* Header - Fixed Layer on Top - Increased z-index to 30 to stay above content elements */}
+      <div className="absolute top-0 left-0 right-0 z-30 bg-white dark:bg-gray-800 rounded-b-[2.5rem] shadow-md px-6 pt-10 pb-8 transition-colors duration-300">
         <div className="flex justify-between items-center mb-4">
           <div>
             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wide first-letter:capitalize">{todayFormatted}</p>
