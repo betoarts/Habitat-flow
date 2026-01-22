@@ -126,19 +126,52 @@ webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 console.log('✅ VAPID configurado com sucesso');
 
 // ============================================================================
-// ARMAZENAMENTO DE SUBSCRIPTIONS
+// ARMAZENAMENTO DE SUBSCRIPTIONS (PERSISTENTE)
 // ============================================================================
 
+import fs from 'fs';
+
+const DATA_DIR = path.join(__dirname, '../../data');
+const DATA_FILE = path.join(DATA_DIR, 'subscriptions.json');
+
+// Garantir que o diretório existe
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Map para cache em memória
+let subscriptions: Map<string, PushSubscription> = new Map();
+
 /**
- * Armazenamento em memória das subscriptions
- * 
- * Em produção, você pode querer persistir em um arquivo JSON local:
- * - Carregar do arquivo ao iniciar
- * - Salvar no arquivo após cada alteração
- * 
- * Para este exemplo, usamos apenas memória (subscriptions são perdidas ao reiniciar)
+ * Carrega subscriptions do arquivo JSON
  */
-const subscriptions: Map<string, PushSubscription> = new Map();
+function loadSubscriptions() {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const data = fs.readFileSync(DATA_FILE, 'utf-8');
+            const subs = JSON.parse(data) as PushSubscription[];
+            subscriptions = new Map(subs.map(s => [s.endpoint, s]));
+            console.log(`📂 Carregadas ${subscriptions.size} subscriptions do disco.`);
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar subscriptions:', error);
+    }
+}
+
+/**
+ * Salva subscriptions no arquivo JSON
+ */
+function saveSubscriptions() {
+    try {
+        const subs = Array.from(subscriptions.values());
+        fs.writeFileSync(DATA_FILE, JSON.stringify(subs, null, 2), 'utf-8');
+    } catch (error) {
+        console.error('❌ Erro ao salvar subscriptions:', error);
+    }
+}
+
+// Carregar ao iniciar
+loadSubscriptions();
 
 // ============================================================================
 // ENDPOINTS
@@ -162,6 +195,9 @@ app.post('/api/subscribe', (req: Request, res: Response): void => {
 
     // Armazenar usando endpoint como chave única
     subscriptions.set(subscription.endpoint, subscription);
+
+    // Persistir alterações
+    saveSubscriptions();
 
     console.log(`📱 Nova subscription registrada`);
     console.log(`   Total de subscriptions: ${subscriptions.size}`);
@@ -190,6 +226,11 @@ app.post('/api/unsubscribe', (req: Request, res: Response): void => {
     }
 
     const deleted = subscriptions.delete(endpoint);
+
+    // Persistir alterações se houve deleção
+    if (deleted) {
+        saveSubscriptions();
+    }
 
     console.log(`🗑️ Subscription removida: ${deleted ? 'sim' : 'não encontrada'}`);
     console.log(`   Total restante: ${subscriptions.size}`);
@@ -254,6 +295,7 @@ app.post('/api/send', async (req: Request, res: Response): Promise<void> => {
                 // Se a subscription expirou ou é inválida (404/410), remover
                 if (err.statusCode === 404 || err.statusCode === 410) {
                     subscriptions.delete(endpoint);
+                    saveSubscriptions(); // Persistir remoção
                     console.log(`   🗑️ Subscription expirada removida: ${endpoint.substring(0, 50)}...`);
                 }
 
