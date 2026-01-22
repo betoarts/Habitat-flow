@@ -186,8 +186,8 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
           ) : (
             habits.map((habit) => {
               const isCompleted = habit.completedDates.includes(today);
-              const Icon = CATEGORY_ICONS[habit.category];
-              const colorClass = CATEGORY_COLORS[habit.category];
+              const Icon = CATEGORY_ICONS[habit.category] || Sparkles;
+              const colorClass = CATEGORY_COLORS[habit.category] || 'text-gray-500 bg-gray-100';
               const hasReminders = habit.reminders && habit.reminders.length > 0;
 
               return (

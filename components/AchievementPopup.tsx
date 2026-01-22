@@ -59,7 +59,7 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement,
           <div className="absolute top-0 transform -translate-y-1/2">
             <div className="relative">
               <Confetti active={showConfetti} config={{ spread: 360, elementCount: 100 }} />
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg ${achievement.color.replace('text-', 'bg-')}`}>
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg ${(achievement.color || 'text-yellow-500 bg-yellow-100').replace('text-', 'bg-')}`}>
                 <Icon size={40} className="text-white" fill="currentColor" />
               </div>
             </div>

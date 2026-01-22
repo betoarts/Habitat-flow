@@ -256,8 +256,8 @@ export const Progress: React.FC<ProgressProps> = ({ habits }) => {
           {categoryData.length > 0 ? (
             <div className="space-y-4">
               {categoryData.map((cat, idx) => {
-                const Icon = CATEGORY_ICONS[cat.name as HabitCategory];
-                const colorClass = CATEGORY_COLORS[cat.name as HabitCategory];
+                const Icon = CATEGORY_ICONS[cat.name as HabitCategory] || Zap;
+                const colorClass = CATEGORY_COLORS[cat.name as HabitCategory] || 'text-gray-500 bg-gray-100';
 
                 return (
                   <div key={idx} className="flex items-center gap-3">

@@ -158,7 +158,7 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
     } else {
       setOpenAiKey('');
     }
-    setApiKey('');
+
     setApiKeyState('');
     setHasKey(false);
   };
@@ -441,8 +441,8 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
                 <button
                   onClick={() => handleProviderChange('GEMINI')}
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${activeProvider === 'GEMINI'
-                      ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                     }`}
                 >
                   Google Gemini
@@ -450,8 +450,8 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
                 <button
                   onClick={() => handleProviderChange('OPENAI')}
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${activeProvider === 'OPENAI'
-                      ? 'bg-white dark:bg-gray-600 shadow-sm text-green-600 dark:text-green-400'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    ? 'bg-white dark:bg-gray-600 shadow-sm text-green-600 dark:text-green-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                     }`}
                 >
                   OpenAI GPT

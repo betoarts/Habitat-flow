@@ -135,7 +135,10 @@ export const chatWithAssistantOpenAi = async (message: string, history: string, 
     } catch (error: any) {
         console.error("OpenAI Chat Error:", error);
         if (error?.status === 429) {
-            return { text: "Limite de requisições excedido (Quota Exceeded)." };
+            return { text: "QUOTA_EXCEEDED" };
+        }
+        if (error?.status === 401) {
+            return { text: "INVALID_KEY" };
         }
         return { text: "Erro de conexão com OpenAI." };
     }

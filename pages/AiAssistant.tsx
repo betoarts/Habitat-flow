@@ -70,9 +70,20 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
     // Pass User and Habits context to service
     const response = await chatWithAssistant(input, historyText, user, habits);
 
-    // Check for quota error
+    // Check for quota error or invalid key
     if (response.text === "QUOTA_EXCEEDED") {
       setQuotaError(true);
+      setLoading(false);
+      return;
+    }
+
+    if (response.text === "INVALID_KEY") {
+      setMessages(prev => [...prev, {
+        id: 'system-error-' + Date.now(),
+        role: 'model',
+        text: "🚫 API Key Inválida ou Expirada. Por favor, verifique sua chave nas configurações.",
+        timestamp: Date.now()
+      }]);
       setLoading(false);
       return;
     }
@@ -207,8 +218,8 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ user, habits }) => {
                 {msg.suggestedHabits.map((habit, idx) => {
                   const uniqueId = `${msg.id}-${idx}`;
                   const isAdded = addedHabitIds.has(uniqueId);
-                  const Icon = CATEGORY_ICONS[habit.category];
-                  const colorClass = CATEGORY_COLORS[habit.category];
+                  const Icon = CATEGORY_ICONS[habit.category] || Sparkles;
+                  const colorClass = CATEGORY_COLORS[habit.category] || 'text-gray-500 bg-gray-100';
 
                   return (
                     <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30 shadow-sm flex items-center justify-between gap-3 relative overflow-hidden">
