@@ -196,16 +196,31 @@ export function usePushNotifications(): PushNotificationState & PushNotification
             throw new Error('Push notifications não são suportadas neste navegador');
         }
 
-        if (!VAPID_PUBLIC_KEY) {
-            const error = 'Chave VAPID não configurada. Defina VITE_VAPID_PUBLIC_KEY no arquivo .env';
-            setState(prev => ({ ...prev, error }));
-            throw new Error(error);
-        }
-
         setState(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
-            // Primeiro, garantir que temos permissão
+            // 1. Obter VAPID Public Key do backend (dinâmico)
+            let vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+            if (!vapidKey) {
+                try {
+                    const keyResponse = await fetch(`${API_BASE_URL}/api/vapid-public-key`);
+                    if (keyResponse.ok) {
+                        const data = await keyResponse.json();
+                        vapidKey = data.publicKey;
+                    }
+                } catch (err) {
+                    console.error('Erro ao buscar chave VAPID:', err);
+                }
+            }
+
+            if (!vapidKey) {
+                const error = 'Chave VAPID não encontrada no ambiente nem na API.';
+                setState(prev => ({ ...prev, isLoading: false, error }));
+                throw new Error(error);
+            }
+
+            // 2. Garantir que temos permissão
             let permission = state.permission;
             if (permission !== 'granted') {
                 permission = await requestPermission();
@@ -215,15 +230,15 @@ export function usePushNotifications(): PushNotificationState & PushNotification
                 }
             }
 
-            // Obter registro do Service Worker (aguarda estar pronto)
+            // 3. Obter registro do Service Worker (aguarda estar pronto)
             const registration = await navigator.serviceWorker.ready;
 
-            // Verificar se já existe uma subscription ativa
+            // 4. Verificar se já existe uma subscription ativa
             let subscription = await registration.pushManager.getSubscription();
 
             if (!subscription) {
                 // Criar nova subscription com a chave VAPID
-                const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+                const applicationServerKey = urlBase64ToUint8Array(vapidKey);
 
                 subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true, // Obrigatório: garante que notificações serão visíveis
@@ -234,7 +249,7 @@ export function usePushNotifications(): PushNotificationState & PushNotification
                 console.log('[Push] Endpoint:', subscription.endpoint);
             }
 
-            // Enviar subscription para o backend armazenar
+            // 5. Enviar subscription para o backend armazenar
             const response = await fetch(`${API_BASE_URL}/api/subscribe`, {
                 method: 'POST',
                 headers: {
