@@ -3,21 +3,26 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+  // Carregar variáveis de ambiente baseado no `mode`
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
     plugins: [
       react(),
       VitePWA({
+        // Usar strategy injectManifest para Service Worker customizado
+        strategies: 'injectManifest',
+        srcDir: 'src',
+        filename: 'sw.ts',
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+        injectRegister: 'auto',
+
+        // Configuração do manifest
         manifest: {
           name: 'HabitFlow',
           short_name: 'HabitFlow',
           description: 'Seu rastreador de hábitos inteligente e gamificado.',
-          theme_color: '#ffffff',
+          theme_color: '#3B82F6',
           start_url: '/',
           display: 'standalone',
           background_color: '#ffffff',
@@ -39,11 +44,25 @@ export default defineConfig(({ mode }) => {
               purpose: 'any maskable'
             }
           ]
+        },
+
+        // Assets para incluir no precache
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'badge.png'],
+
+        // Configuração do injectManifest
+        injectManifest: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+        },
+
+        // Dev options para testar durante desenvolvimento
+        devOptions: {
+          enabled: true,
+          type: 'module'
         }
       })
     ],
     define: {
-      // Polyfill process.env.API_KEY for the Gemini SDK
+      // Polyfill process.env.API_KEY para o SDK Gemini
       'process.env.API_KEY': JSON.stringify(process.env.API_KEY || env.API_KEY || '')
     },
     server: {

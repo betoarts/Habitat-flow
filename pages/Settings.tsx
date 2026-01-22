@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Moon, Bell, User, Trash2, Shield, ChevronRight, HelpCircle, LogOut, Camera, Save, Upload, Sparkles, Loader2, Check, Key, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Moon, Bell, User, Trash2, Shield, ChevronRight, HelpCircle, LogOut, Camera, Save, Upload, Sparkles, Loader2, Check, Key, Eye, EyeOff, Lightbulb, Clock } from 'lucide-react';
 import { User as UserType } from '../types';
 import { useAppContext } from '../context/AppContext';
 import { editUserProfileImage, setApiKey, getCurrentApiKey, hasApiKey } from '../services/geminiService';
+import { generateSmartNotification } from '../services/geminiService';
+import { sendPushNotification } from '../services/pushService';
 import SEO from '../components/SEO';
+import PushNotificationButton from '../components/PushNotificationButton';
 
 interface SettingsProps {
   onBack: () => void;
@@ -13,7 +16,9 @@ interface SettingsProps {
 
 export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user }) => {
   const { updateUser } = useAppContext();
-  const [notifications, setNotifications] = useState(true);
+  // const [notifications, setNotifications] = useState(true); // Removido toggle fictício
+  const [loadingTip, setLoadingTip] = useState(false);
+  const [loadingReminder, setLoadingReminder] = useState(false);
 
   // Initialize from DOM state to stay in sync with App.tsx initialization
   const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains('dark'));
@@ -314,26 +319,66 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
           </div>
         </section>
 
+        {/* Push Notifications Section */}
+        <section>
+          <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 ml-1">Notificações</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors duration-300">
+            <PushNotificationButton />
+
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-2 gap-3">
+              <button
+                onClick={async () => {
+                  setLoadingTip(true);
+                  try {
+                    const tip = await generateSmartNotification(user.name, []);
+                    await sendPushNotification({
+                      title: '💡 Dica do Coach',
+                      body: tip || 'Mantenha a consistência para atingir seus objetivos!',
+                      type: 'COACH_TIP'
+                    });
+                  } finally {
+                    setLoadingTip(false);
+                  }
+                }}
+                disabled={loadingTip}
+                className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors border border-purple-100 dark:border-purple-800/30 text-xs font-semibold"
+              >
+                {loadingTip ? <Loader2 size={18} className="animate-spin" /> : <Lightbulb size={20} />}
+                Simular Dica
+              </button>
+
+              <button
+                onClick={async () => {
+                  setLoadingReminder(true);
+                  try {
+                    await sendPushNotification({
+                      title: '⏰ Lembrete',
+                      body: 'Hora de beber água e se alongar! 💧',
+                      type: 'REMINDER'
+                    });
+                  } finally {
+                    setLoadingReminder(false);
+                  }
+                }}
+                disabled={loadingReminder}
+                className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-800/30 text-xs font-semibold"
+              >
+                {loadingReminder ? <Loader2 size={18} className="animate-spin" /> : <Clock size={20} />}
+                Simular Lembrete
+              </button>
+            </div>
+            <p className="text-[10px] text-gray-400 text-center mt-2">
+              Teste os tipos de notificação que "acontecerão" no app.
+            </p>
+          </div>
+        </section>
+
         {/* Preferences Section */}
         <section>
           <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 ml-1">Preferências</h2>
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
 
-            {/* Notifications Toggle */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 dark:text-yellow-500">
-                  <Bell size={20} />
-                </div>
-                <span className="font-medium text-gray-900 dark:text-white">Notificações</span>
-              </div>
-              <button
-                onClick={() => setNotifications(!notifications)}
-                className={`w-12 h-7 rounded-full transition-colors relative focus:outline-none ${notifications ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-600'}`}
-              >
-                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-200 shadow-sm ${notifications ? 'left-6' : 'left-1'}`} />
-              </button>
-            </div>
+            {/* <PushNotificationButton /> integrada em seção própria abaixo para melhor UI */}
 
             {/* Dark Mode Toggle */}
             <div className="flex items-center justify-between p-4">
@@ -401,8 +446,8 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
                   onClick={handleSaveApiKey}
                   disabled={!apiKey.trim() || apiKeySaved}
                   className={`px-4 rounded-xl font-medium text-sm transition-all flex items-center gap-1.5 ${apiKeySaved
-                      ? 'bg-green-500 text-white'
-                      : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
                     }`}
                 >
                   {apiKeySaved ? <Check size={16} /> : <Save size={16} />}

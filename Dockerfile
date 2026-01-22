@@ -1,54 +1,70 @@
 # ==========================================
-# HabitFlow - Dockerfile for EasyPanel
-# Multi-stage build for React/Vite PWA + Nginx
+# HabitFlow - Fullstack Dockerfile
+# Builds React Frontend + Node Backend
 # ==========================================
 
-# Stage 1: Build the application
-FROM node:20-alpine AS builder
-
+# ------------------------------------------
+# Stage 1: Build Frontend (Vite)
+# ------------------------------------------
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app
 
-# Copy package files
+# Copy root package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies (use npm install as fallback if ci fails)
+# Install dependencies
 RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Build the application (includes PWA assets generation)
+# Build frontend with relative API URL (empty string means relative path)
+# This allows the frontend to call /api/... on the same domain
+ENV VITE_API_URL=""
 RUN npm run build
 
-# ==========================================
-# Stage 2: Production image with Nginx
-# ==========================================
-FROM nginx:alpine AS production
+# ------------------------------------------
+# Stage 2: Build Backend (Node/Express)
+# ------------------------------------------
+FROM node:20-alpine AS backend-builder
+WORKDIR /app/server
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Copy server package files
+COPY server/package.json server/package-lock.json* ./
 
-# Remove default nginx static files and config
-RUN rm -rf /usr/share/nginx/html/* && rm /etc/nginx/conf.d/default.conf
+# Install server dependencies
+RUN npm install
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy server source code
+COPY server/ ./
 
-# Copy built assets from builder stage (includes sw.js, manifest.webmanifest)
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Build backend (TypeScript -> JavaScript)
+RUN npm run build
 
-# Copy PWA icons from public folder
-COPY --from=builder /app/public /usr/share/nginx/html
+# ------------------------------------------
+# Stage 3: Production Runner
+# ------------------------------------------
+FROM node:20-alpine AS runner
+WORKDIR /app
 
-# Create a simple healthcheck file
-RUN echo "OK" > /usr/share/nginx/html/health.txt
+# Install production dependencies for backend only
+COPY server/package.json ./
+RUN npm install --production
 
-# Add healthcheck for EasyPanel
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:80/ || exit 1
+# Copy built frontend assets
+COPY --from=frontend-builder /app/dist ./dist
 
-# Expose port 80
-EXPOSE 80
+# Copy built backend assets
+COPY --from=backend-builder /app/server/dist ./server/dist
 
-# Start nginx in foreground
-CMD ["nginx", "-g", "daemon off;"]
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+# FRONTEND_PATH relative to server/dist/server.js -> ../../dist
+ENV FRONTEND_PATH=/app/dist
+
+# Expose port
+EXPOSE 3000
+
+# Start server
+CMD ["node", "server/dist/server.js"]
