@@ -38,7 +38,10 @@ export interface PushNotificationActions {
 // ============================================================================
 
 // URL base da API (ajustar conforme ambiente)
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Removemos trailing slash e sufixo /api se existirem para evitar duplicidade (ex: /api/api/subscribe)
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001')
+    .replace(/\/api\/?$/, '')
+    .replace(/\/$/, '');
 
 // Chave pública VAPID (definir no .env como VITE_VAPID_PUBLIC_KEY)
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
