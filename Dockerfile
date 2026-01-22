@@ -59,7 +59,7 @@ COPY --from=backend-builder /app/server/dist ./server/dist
 
 # Environment variables
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=80
 # FRONTEND_PATH relative to server/dist/server.js -> ../../dist
 ENV FRONTEND_PATH=/app/dist
 
@@ -68,7 +68,7 @@ RUN mkdir -p /app/data
 VOLUME ["/app/data"]
 
 # Expose port
-EXPOSE 3000
+EXPOSE 80
 
 # Start server
 CMD ["node", "server/dist/server.js"]
