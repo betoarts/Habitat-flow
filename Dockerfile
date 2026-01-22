@@ -63,6 +63,10 @@ ENV PORT=3000
 # FRONTEND_PATH relative to server/dist/server.js -> ../../dist
 ENV FRONTEND_PATH=/app/dist
 
+# Create persistence directory
+RUN mkdir -p /app/data
+VOLUME ["/app/data"]
+
 # Expose port
 EXPOSE 3000
 
