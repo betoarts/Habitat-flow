@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChatMessage, Habit, User, SuggestedHabit, HabitCategory } from '../types';
-import { chatWithAssistant, getBehavioralAnalysis } from '../services/geminiService';
+import { chatWithAssistant, getBehavioralAnalysis } from '../services/aiService';
 import { useAppContext } from '../context/AppContext';
 import { Send, Bot, Sparkles, Plus, Check, PlayCircle, Trash2, Bell, X } from 'lucide-react';
 import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants';

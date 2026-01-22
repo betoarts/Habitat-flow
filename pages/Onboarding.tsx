@@ -3,7 +3,7 @@ import { HabitCategory } from '../types';
 import { CATEGORY_ICONS } from '../constants';
 import { ArrowRight, Check, Sparkles, Plus, Zap, Infinity, BarChart3 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
-import { generateOnboardingInsight } from '../services/geminiService';
+import { generateOnboardingInsight } from '../services/aiService';
 import SEO from '../components/SEO';
 
 interface OnboardingProps {

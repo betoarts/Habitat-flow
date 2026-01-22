@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Habit, User, HabitCategory, Achievement } from '../types';
 import { MOCK_HABITS, LEVELS, ACHIEVEMENTS } from '../constants';
 import { format, subDays } from 'date-fns';
-import { generateSmartNotification } from '../services/geminiService';
+import { generateSmartNotification } from '../services/aiService';
 
 interface AppContextType {
   user: User;
@@ -59,22 +59,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Check for Smart Notification on mount
   useEffect(() => {
     const fetchNotification = async () => {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const pendingHabits = habits.filter(h => !h.completedDates.includes(today));
-        
-        if (pendingHabits.length > 0 && user.isOnboarded) {
-            // Add a small delay to simulate app processing/loading
-            const msg = await generateSmartNotification(user.name, pendingHabits);
-            if (msg) {
-                setSmartNotification(msg);
-            }
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const pendingHabits = habits.filter(h => !h.completedDates.includes(today));
+
+      if (pendingHabits.length > 0 && user.isOnboarded) {
+        // Add a small delay to simulate app processing/loading
+        const msg = await generateSmartNotification(user.name, pendingHabits);
+        if (msg) {
+          setSmartNotification(msg);
         }
+      }
     };
-    
+
     if (!smartNotification) {
-        fetchNotification();
+      fetchNotification();
     }
-  }, [user.name, user.isOnboarded]); 
+  }, [user.name, user.isOnboarded]);
 
   const completeOnboarding = (goals: HabitCategory[]) => {
     setUser(prev => ({ ...prev, goals, isOnboarded: true }));
@@ -109,18 +109,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (currentHabits.some(h => h.streak >= 3)) unlocked = true;
           break;
         case 'week_warrior':
-           // Check if any habit has streak >= 7
-           if (currentHabits.some(h => h.streak >= 7)) unlocked = true;
-           break;
+          // Check if any habit has streak >= 7
+          if (currentHabits.some(h => h.streak >= 7)) unlocked = true;
+          break;
         case 'monthly_master':
-           // Check if any habit has streak >= 30
-           if (currentHabits.some(h => h.streak >= 30)) unlocked = true;
-           break;
+          // Check if any habit has streak >= 30
+          if (currentHabits.some(h => h.streak >= 30)) unlocked = true;
+          break;
         case 'high_five':
-           // Check if 5 habits completed today
-           const completedToday = currentHabits.filter(h => h.completedDates.includes(today)).length;
-           if (completedToday >= 5) unlocked = true;
-           break;
+          // Check if 5 habits completed today
+          const completedToday = currentHabits.filter(h => h.completedDates.includes(today)).length;
+          if (completedToday >= 5) unlocked = true;
+          break;
       }
 
       if (unlocked) {
@@ -129,109 +129,109 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     if (newUnlockeds.length > 0) {
-       const ach = newUnlockeds[0];
-       
-       setUser(prev => {
-         const newXp = prev.xp + ach.xpReward;
-         const newLevel = LEVELS.slice().reverse().find(l => newXp >= l.xp)?.level || 1;
+      const ach = newUnlockeds[0];
 
-         return {
-           ...prev,
-           xp: newXp,
-           level: newLevel,
-           unlockedAchievements: [...prev.unlockedAchievements || [], ach.id]
-         };
-       });
+      setUser(prev => {
+        const newXp = prev.xp + ach.xpReward;
+        const newLevel = LEVELS.slice().reverse().find(l => newXp >= l.xp)?.level || 1;
 
-       setLatestAchievement(ach);
+        return {
+          ...prev,
+          xp: newXp,
+          level: newLevel,
+          unlockedAchievements: [...prev.unlockedAchievements || [], ach.id]
+        };
+      });
+
+      setLatestAchievement(ach);
     }
   };
 
   const toggleHabit = (id: string) => {
     let xpChange = 0;
-    
+
     // We calculate the new state first to determine XP change based on consistency
     const updatedHabits = habits.map(habit => {
-        if (habit.id !== id) return habit;
+      if (habit.id !== id) return habit;
 
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const isCompletedToday = habit.completedDates.includes(today);
-        let newCompletedDates = [...habit.completedDates];
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const isCompletedToday = habit.completedDates.includes(today);
+      let newCompletedDates = [...habit.completedDates];
 
-        if (isCompletedToday) {
-          // UNDO ACTION
-          newCompletedDates = newCompletedDates.filter(d => d !== today);
-          
-          // Remove XP: Base 10 + estimated streak bonus
-          // We remove the bonus proportional to the streak they HAD
-          const streakBonus = Math.min(habit.streak * 2, 50);
-          xpChange = -(10 + streakBonus); 
-        } else {
-          // COMPLETE ACTION
-          newCompletedDates.push(today);
+      if (isCompletedToday) {
+        // UNDO ACTION
+        newCompletedDates = newCompletedDates.filter(d => d !== today);
+
+        // Remove XP: Base 10 + estimated streak bonus
+        // We remove the bonus proportional to the streak they HAD
+        const streakBonus = Math.min(habit.streak * 2, 50);
+        xpChange = -(10 + streakBonus);
+      } else {
+        // COMPLETE ACTION
+        newCompletedDates.push(today);
+      }
+
+      // Recalculate Streak
+      const sortedDates = [...newCompletedDates].sort();
+      let currentStreak = 0;
+
+      if (newCompletedDates.length > 0) {
+        // We check if today or yesterday is present to start counting backwards
+        const lastDate = sortedDates[sortedDates.length - 1];
+        const todayStr = format(new Date(), 'yyyy-MM-dd');
+        const yesterdayStr = format(subDays(new Date(), 1), 'yyyy-MM-dd');
+
+        if (lastDate === todayStr || lastDate === yesterdayStr) {
+          currentStreak = 1;
+          // Iterate backwards to find consecutive days
+          for (let i = 1; i < 365; i++) {
+            const checkDate = format(subDays(new Date(), i), 'yyyy-MM-dd');
+            // Note: This logic assumes dates are in the array. 
+            // A more robust logic handles gaps for 'specific days' frequency, 
+            // but for MVP 'daily' logic this works.
+            if (newCompletedDates.includes(checkDate)) {
+              currentStreak++;
+            } else {
+              break;
+            }
+          }
         }
+      }
 
-        // Recalculate Streak
-        const sortedDates = [...newCompletedDates].sort();
-        let currentStreak = 0;
-        
-        if (newCompletedDates.length > 0) {
-           // We check if today or yesterday is present to start counting backwards
-           const lastDate = sortedDates[sortedDates.length - 1];
-           const todayStr = format(new Date(), 'yyyy-MM-dd');
-           const yesterdayStr = format(subDays(new Date(), 1), 'yyyy-MM-dd');
-           
-           if (lastDate === todayStr || lastDate === yesterdayStr) {
-               currentStreak = 1;
-               // Iterate backwards to find consecutive days
-               for (let i = 1; i < 365; i++) { 
-                   const checkDate = format(subDays(new Date(), i), 'yyyy-MM-dd');
-                   // Note: This logic assumes dates are in the array. 
-                   // A more robust logic handles gaps for 'specific days' frequency, 
-                   // but for MVP 'daily' logic this works.
-                   if (newCompletedDates.includes(checkDate)) {
-                       currentStreak++;
-                   } else {
-                       break;
-                   }
-               }
-           }
-        }
+      // If we just completed it, calculate Positive XP with Constancy Bonus
+      if (!isCompletedToday) {
+        // Base XP: 10
+        // Constancy Bonus: 2 XP per day of streak (Max 50 bonus)
+        const streakBonus = Math.min(currentStreak * 2, 50);
+        xpChange = 10 + streakBonus;
+      }
 
-        // If we just completed it, calculate Positive XP with Constancy Bonus
-        if (!isCompletedToday) {
-            // Base XP: 10
-            // Constancy Bonus: 2 XP per day of streak (Max 50 bonus)
-            const streakBonus = Math.min(currentStreak * 2, 50);
-            xpChange = 10 + streakBonus;
-        }
-
-        return {
-          ...habit,
-          completedDates: newCompletedDates,
-          streak: currentStreak,
-          bestStreak: Math.max(habit.bestStreak, currentStreak)
-        };
+      return {
+        ...habit,
+        completedDates: newCompletedDates,
+        streak: currentStreak,
+        bestStreak: Math.max(habit.bestStreak, currentStreak)
+      };
     });
 
     setHabits(updatedHabits);
 
     // Apply XP Change
     if (xpChange !== 0) {
-        setUser(prev => {
-            const newXp = Math.max(0, prev.xp + xpChange);
-            const newLevel = LEVELS.slice().reverse().find(l => newXp >= l.xp)?.level || 1;
-            return {
-                ...prev,
-                xp: newXp,
-                level: newLevel
-            };
-        });
+      setUser(prev => {
+        const newXp = Math.max(0, prev.xp + xpChange);
+        const newLevel = LEVELS.slice().reverse().find(l => newXp >= l.xp)?.level || 1;
+        return {
+          ...prev,
+          xp: newXp,
+          level: newLevel
+        };
+      });
     }
 
     // Check achievements with the updated state
     setTimeout(() => {
-        checkAchievements(user, updatedHabits);
+      checkAchievements(user, updatedHabits);
     }, 100);
   };
 
@@ -258,12 +258,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const clearLatestAchievement = () => setLatestAchievement(null);
 
   return (
-    <AppContext.Provider value={{ 
-      user, 
-      habits, 
-      isOnboardingComplete: user.isOnboarded, 
-      completeOnboarding, 
-      toggleHabit, 
+    <AppContext.Provider value={{
+      user,
+      habits,
+      isOnboardingComplete: user.isOnboarded,
+      completeOnboarding,
+      toggleHabit,
       addHabit,
       updateHabit,
       updateUser,

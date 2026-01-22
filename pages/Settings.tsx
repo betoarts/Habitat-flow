@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Moon, Bell, User, Trash2, Shield, ChevronRight, HelpCircle, LogOut, Camera, Save, Upload, Sparkles, Loader2, Check, Key, Eye, EyeOff, Lightbulb, Clock } from 'lucide-react';
 import { User as UserType } from '../types';
 import { useAppContext } from '../context/AppContext';
-import { editUserProfileImage, setApiKey, getCurrentApiKey, hasApiKey } from '../services/geminiService';
-import { generateSmartNotification } from '../services/geminiService';
+import { editUserProfileImage, setApiKey as setGeminiKey, getCurrentApiKey as getGeminiKey, hasApiKey as hasGeminiKey } from '../services/geminiService';
+import { setOpenAiKey, getCurrentOpenAiKey as getOpenAiKey, hasOpenAiKey } from '../services/openaiService';
+import { getAiProvider, setAiProvider, AiProvider, generateSmartNotification } from '../services/aiService';
 import { sendPushNotification } from '../services/pushService';
 import SEO from '../components/SEO';
 import PushNotificationButton from '../components/PushNotificationButton';
@@ -36,20 +37,38 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // API Key State
+  const [activeProvider, setActiveProvider] = useState<AiProvider>('GEMINI');
   const [apiKey, setApiKeyState] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [apiKeySaved, setApiKeySaved] = useState(false);
   const [hasKey, setHasKey] = useState(false);
 
-  // Load API key status on mount
+  // Load initial state
   useEffect(() => {
-    setHasKey(hasApiKey());
-    // Only show masked preview, not actual key
-    const currentKey = getCurrentApiKey();
-    if (currentKey) {
-      setApiKeyState(''); // Don't expose the actual key
-    }
+    // Load saved provider
+    const savedProvider = getAiProvider();
+    setActiveProvider(savedProvider);
+    updateKeyStatus(savedProvider);
   }, []);
+
+  const updateKeyStatus = (provider: AiProvider) => {
+    const has = provider === 'GEMINI' ? hasGeminiKey() : hasOpenAiKey();
+    const current = provider === 'GEMINI' ? getGeminiKey() : getOpenAiKey();
+
+    setHasKey(has);
+    if (current) {
+      setApiKeyState(''); // Mask actual key
+    } else {
+      setApiKeyState('');
+    }
+  };
+
+  const handleProviderChange = (provider: AiProvider) => {
+    setActiveProvider(provider);
+    setAiProvider(provider);
+    updateKeyStatus(provider);
+    setApiKeyState(''); // Clear input on switch
+  };
 
   const toggleDarkMode = () => {
     const newMode = !darkMode;
@@ -118,9 +137,15 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
   };
 
   const handleSaveApiKey = () => {
-    setApiKey(apiKey.trim());
+    const key = apiKey.trim();
+    if (activeProvider === 'GEMINI') {
+      setGeminiKey(key);
+    } else {
+      setOpenAiKey(key);
+    }
+
     setApiKeySaved(true);
-    setHasKey(!!apiKey.trim());
+    setHasKey(!!key);
     setTimeout(() => {
       setApiKeySaved(false);
       setApiKeyState('');
@@ -128,6 +153,11 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
   };
 
   const handleRemoveApiKey = () => {
+    if (activeProvider === 'GEMINI') {
+      setGeminiKey('');
+    } else {
+      setOpenAiKey('');
+    }
     setApiKey('');
     setApiKeyState('');
     setHasKey(false);
@@ -405,12 +435,37 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
 
             {/* API Key Status */}
             <div className="p-4 border-b border-gray-50 dark:border-gray-700">
+
+              {/* Provider Selector */}
+              <div className="flex gap-2 mb-4 bg-gray-100 dark:bg-gray-700/50 p-1 rounded-xl">
+                <button
+                  onClick={() => handleProviderChange('GEMINI')}
+                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${activeProvider === 'GEMINI'
+                      ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    }`}
+                >
+                  Google Gemini
+                </button>
+                <button
+                  onClick={() => handleProviderChange('OPENAI')}
+                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${activeProvider === 'OPENAI'
+                      ? 'bg-white dark:bg-gray-600 shadow-sm text-green-600 dark:text-green-400'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    }`}
+                >
+                  OpenAI GPT
+                </button>
+              </div>
+
               <div className="flex items-center gap-3 mb-3">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${hasKey ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-500' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500'}`}>
                   <Key size={20} />
                 </div>
                 <div className="flex-1">
-                  <span className="font-medium text-gray-900 dark:text-white">Gemini API Key</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {activeProvider === 'GEMINI' ? 'Gemini API Key' : 'OpenAI API Key'}
+                  </span>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {hasKey ? '✓ Configurada' : 'Necessária para recursos de IA'}
                   </p>
@@ -432,7 +487,7 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
                     type={showApiKey ? 'text' : 'password'}
                     value={apiKey}
                     onChange={(e) => setApiKeyState(e.target.value)}
-                    placeholder={hasKey ? '••••••••••••••••' : 'Cole sua API Key aqui'}
+                    placeholder={hasKey ? '••••••••••••••••' : `Cole sua API Key do ${activeProvider === 'GEMINI' ? 'Google' : 'OpenAI'}`}
                     className="w-full p-3 pr-10 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                   />
                   <button
@@ -457,7 +512,11 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
 
               {/* Help text */}
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                Obtenha sua API Key em <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">aistudio.google.com/apikey</a>
+                {activeProvider === 'GEMINI' ? (
+                  <>Obtenha sua API Key em <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">aistudio.google.com/apikey</a></>
+                ) : (
+                  <>Obtenha sua API Key em <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">platform.openai.com/api-keys</a></>
+                )}
               </p>
             </div>
 
