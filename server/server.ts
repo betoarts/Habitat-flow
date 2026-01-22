@@ -87,7 +87,7 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
 
 // CORS - permitir requisições do frontend
 app.use(cors({
-    origin: [CLIENT_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: [CLIENT_URL, 'http://localhost:3000', 'http://127.0.0.1:3000', 'https://habitflow.servicestec.pro'],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
