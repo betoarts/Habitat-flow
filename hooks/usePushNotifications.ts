@@ -43,8 +43,8 @@ const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001')
     .replace(/\/api\/?$/, '')
     .replace(/\/$/, '');
 
-// Chave pública VAPID (definir no .env como VITE_VAPID_PUBLIC_KEY)
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+// Chave pública VAPID (definir no .env ou hardcoded aqui)
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BPS_9DN-ZfVBJPB8uoljutp7VKFLCsM9gbPJRy08UTuO9jjgiNm5wICNB6FoW8y4W4NEyCHCk2ejFIzdSHXyoO4';
 
 // ============================================================================
 // FUNÇÕES UTILITÁRIAS
@@ -202,8 +202,8 @@ export function usePushNotifications(): PushNotificationState & PushNotification
         setState(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
-            // 1. Obter VAPID Public Key do backend (dinâmico)
-            let vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+            // 1. Obter VAPID Public Key (ambiente, hardcoded ou backend)
+            let vapidKey = VAPID_PUBLIC_KEY;
 
             if (!vapidKey) {
                 try {
