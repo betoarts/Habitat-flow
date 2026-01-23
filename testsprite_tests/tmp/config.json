@@ -1,0 +1,16 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "executionArgs": {
+    "projectName": "Habitat-flow",
+    "projectPath": "/home/humberto/App-habitflow/Habitat-flow",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-YrXkvQT4SyyRJc9YK8uQ4g-49k8Xvl-ty6ymWnKYUUXmxTHx9l0BhLl5eo-xFtrPNIfIcINnZllwEeOYSuAsd5iMvh0qFUrLdq9ck_XaeMpVVJmujlrANL-_Lm7c4KRagpU"
+    }
+  },
+  "proxy": "http://675fd2cb-e449-48ba-a862-58c4eb692387:9veaoYqcztat3YyR9TFO7mhmqMqciXAJ@tun.testsprite.com:8080"
+}

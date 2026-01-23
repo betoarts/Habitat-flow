@@ -90,10 +90,12 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
       // Trigger success animation
       setSaveSuccess(true);
 
-      // Close after delay
+      // Close after delay and navigate back
       setTimeout(() => {
         setSaveSuccess(false);
         setIsEditing(false);
+        // Navigate back to previous screen
+        onBack();
       }, 1500);
     }
   };
@@ -304,7 +306,7 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
         description="Gerencie suas preferências, conta e integrações do HabitFlow."
       />
       {/* Header */}
-      <div className="px-6 pt-10 pb-4 bg-white dark:bg-gray-800 shadow-sm flex items-center gap-4 z-10 sticky top-0 transition-colors duration-300">
+      <div className="px-6 pt-5 pb-4 bg-white dark:bg-gray-800 shadow-sm flex items-center gap-4 z-10 sticky top-0 transition-colors duration-300">
         <button
           onClick={onBack}
           className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300"

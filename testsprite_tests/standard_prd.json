@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "project": "HabitFlow",
+    "date": "2026-01-21",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "HabitFlow is a progressive web application designed to help users build and maintain positive habits by tracking progress, receiving achievement notifications, and accessing AI-powered assistance. It leverages modern web technologies to provide a seamless, mobile-optimized experience with push notifications and personalized interactions.",
+  "core_goals": [
+    "Enable users to track and visualize their habit progress easily and intuitively.",
+    "Motivate users through achievement notifications and rewarding interactions.",
+    "Provide personalized habit coaching and support via an AI assistant.",
+    "Ensure the application is accessible and user-friendly on both desktop and mobile devices.",
+    "Leverage push notifications to keep users engaged and informed even when not actively using the app."
+  ],
+  "key_features": [
+    "AchievementPopup component to notify users of milestones and achievements in real-time.",
+    "SplashScreen to enhance user experience during app startup by displaying loading indicators.",
+    "Responsive Layout with integrated BottomNav for easy navigation across the app.",
+    "PushNotificationButton for users to enable browser push notifications with permission handling.",
+    "Pages for Home, Settings, Profile, Progress tracking, and AI Assistant interaction.",
+    "usePushNotifications custom hook managing subscription lifecycle and integration with the backend PushService.",
+    "Backend push server implemented with Node.js and Express to handle push subscription endpoints securely.",
+    "SEO component using react-helmet-async to improve discoverability and metadata management.",
+    "Services wrapping OpenAI and Google Gemini APIs for AI functionalities and assistance."
+  ],
+  "user_flow_summary": [
+    "User lands on the HomePage and can navigate the app using BottomNav or Layout components.",
+    "User signs in and is able to manage their profile in ProfilePage and configure preferences in SettingsPage.",
+    "User tracks their habits and views progress analytics in ProgressPage.",
+    "When users achieve certain milestones, AchievementPopup displays real-time notifications congratulating them.",
+    "Users can enable push notifications using PushNotificationButton to receive habit reminders and achievement alerts even when the app is in background.",
+    "Users access the AI assistant through AiAssistantPage, interacting with personalized habit guidance powered by OpenAI and Gemini APIs.",
+    "The application loads a SplashScreen initially for smooth resource loading before showing main content."
+  ],
+  "validation_criteria": [
+    "AchievementPopup renders and displays accurate achievement messages upon relevant user actions.",
+    "PushNotificationButton successfully requests and obtains user permission, with subscriptions stored and managed by the backend server.",
+    "AI assistant responds accurately and relevantly to user inputs using the integrated OpenAI and Gemini services.",
+    "ProgressPage reflects real-time and accurate habit tracking data visually.",
+    "Navigation components (Layout, BottomNav) work consistently across devices and screen sizes.",
+    "SEO metadata aligns with page content and updates dynamically for main user-facing pages.",
+    "SplashScreen shows appropriately during app load with no unusual delays or errors."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "React",
+      "Vite",
+      "Node.js",
+      "Express",
+      "Tailwind CSS",
+      "PWA",
+      "Web Push"
+    ],
+    "features": [
+      {
+        "name": "AchievementPopup",
+        "description": "UI component that displays achievement notifications to the user.",
+        "files": [
+          "components/AchievementPopup.tsx"
+        ]
+      },
+      {
+        "name": "SplashScreen",
+        "description": "Component shown on app startup while resources load.",
+        "files": [
+          "components/SplashScreen.tsx"
+        ]
+      },
+      {
+        "name": "Layout",
+        "description": "Main layout wrapper providing navigation and common UI elements.",
+        "files": [
+          "components/Layout.tsx"
+        ]
+      },
+      {
+        "name": "PushNotificationButton",
+        "description": "Button component that triggers push notification permission request.",
+        "files": [
+          "components/PushNotificationButton.tsx"
+        ]
+      },
+      {
+        "name": "BottomNav",
+        "description": "Bottom navigation bar for mobile UI.",
+        "files": [
+          "components/BottomNav.tsx"
+        ]
+      },
+      {
+        "name": "SEO",
+        "description": "Component that injects meta tags for SEO using react-helmet-async.",
+        "files": [
+          "components/SEO.tsx"
+        ]
+      },
+      {
+        "name": "usePushNotifications",
+        "description": "Custom React hook managing push subscription lifecycle.",
+        "files": [
+          "hooks/usePushNotifications.ts"
+        ]
+      },
+      {
+        "name": "HomePage",
+        "description": "Main landing page of the HabitFlow app.",
+        "files": [
+          "pages/Home.tsx"
+        ]
+      },
+      {
+        "name": "SettingsPage",
+        "description": "User settings and preferences page.",
+        "files": [
+          "pages/Settings.tsx"
+        ]
+      },
+      {
+        "name": "ProfilePage",
+        "description": "User profile view and edit page.",
+        "files": [
+          "pages/Profile.tsx"
+        ]
+      },
+      {
+        "name": "ProgressPage",
+        "description": "Displays user habit progress and statistics.",
+        "files": [
+          "pages/Progress.tsx"
+        ]
+      },
+      {
+        "name": "AiAssistantPage",
+        "description": "Interactive AI assistant interface.",
+        "files": [
+          "pages/AiAssistant.tsx"
+        ]
+      },
+      {
+        "name": "PushService",
+        "description": "Service layer for interacting with the push notification backend.",
+        "files": [
+          "services/pushService.ts"
+        ]
+      },
+      {
+        "name": "OpenAIService",
+        "description": "Service wrapper for OpenAI API calls.",
+        "files": [
+          "services/openaiService.ts"
+        ]
+      },
+      {
+        "name": "GeminiService",
+        "description": "Service wrapper for Google Gemini API calls.",
+        "files": [
+          "services/geminiService.ts"
+        ]
+      },
+      {
+        "name": "BackendPushServer",
+        "description": "Node.js Express server handling push subscription endpoints.",
+        "files": [
+          "server/server.ts"
+        ]
+      }
+    ]
+  }
+}

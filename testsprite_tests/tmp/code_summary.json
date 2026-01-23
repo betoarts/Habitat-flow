@@ -1,0 +1,126 @@
+{
+    "tech_stack": [
+        "TypeScript",
+        "React",
+        "Vite",
+        "Node.js",
+        "Express",
+        "Tailwind CSS",
+        "PWA",
+        "Web Push"
+    ],
+    "features": [
+        {
+            "name": "AchievementPopup",
+            "description": "UI component that displays achievement notifications to the user.",
+            "files": [
+                "components/AchievementPopup.tsx"
+            ]
+        },
+        {
+            "name": "SplashScreen",
+            "description": "Component shown on app startup while resources load.",
+            "files": [
+                "components/SplashScreen.tsx"
+            ]
+        },
+        {
+            "name": "Layout",
+            "description": "Main layout wrapper providing navigation and common UI elements.",
+            "files": [
+                "components/Layout.tsx"
+            ]
+        },
+        {
+            "name": "PushNotificationButton",
+            "description": "Button component that triggers push notification permission request.",
+            "files": [
+                "components/PushNotificationButton.tsx"
+            ]
+        },
+        {
+            "name": "BottomNav",
+            "description": "Bottom navigation bar for mobile UI.",
+            "files": [
+                "components/BottomNav.tsx"
+            ]
+        },
+        {
+            "name": "SEO",
+            "description": "Component that injects meta tags for SEO using react-helmet-async.",
+            "files": [
+                "components/SEO.tsx"
+            ]
+        },
+        {
+            "name": "usePushNotifications",
+            "description": "Custom React hook managing push subscription lifecycle.",
+            "files": [
+                "hooks/usePushNotifications.ts"
+            ]
+        },
+        {
+            "name": "HomePage",
+            "description": "Main landing page of the HabitFlow app.",
+            "files": [
+                "pages/Home.tsx"
+            ]
+        },
+        {
+            "name": "SettingsPage",
+            "description": "User settings and preferences page.",
+            "files": [
+                "pages/Settings.tsx"
+            ]
+        },
+        {
+            "name": "ProfilePage",
+            "description": "User profile view and edit page.",
+            "files": [
+                "pages/Profile.tsx"
+            ]
+        },
+        {
+            "name": "ProgressPage",
+            "description": "Displays user habit progress and statistics.",
+            "files": [
+                "pages/Progress.tsx"
+            ]
+        },
+        {
+            "name": "AiAssistantPage",
+            "description": "Interactive AI assistant interface.",
+            "files": [
+                "pages/AiAssistant.tsx"
+            ]
+        },
+        {
+            "name": "PushService",
+            "description": "Service layer for interacting with the push notification backend.",
+            "files": [
+                "services/pushService.ts"
+            ]
+        },
+        {
+            "name": "OpenAIService",
+            "description": "Service wrapper for OpenAI API calls.",
+            "files": [
+                "services/openaiService.ts"
+            ]
+        },
+        {
+            "name": "GeminiService",
+            "description": "Service wrapper for Google Gemini API calls.",
+            "files": [
+                "services/geminiService.ts"
+            ]
+        },
+        {
+            "name": "BackendPushServer",
+            "description": "Node.js Express server handling push subscription endpoints.",
+            "files": [
+                "server/server.ts"
+            ]
+        }
+    ]
+}

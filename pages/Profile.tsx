@@ -126,7 +126,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, habits, onOpenSettings }
       {/* Immersive Header */}
       <div className="relative bg-white dark:bg-gray-800 pb-8 rounded-b-[2.5rem] shadow-sm z-10 transition-colors duration-300">
         {/* Top Actions */}
-        <div className="absolute top-6 right-6 z-20">
+        <div className="absolute top-4 right-6 z-20">
           <button
             onClick={onOpenSettings}
             className="p-2.5 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"

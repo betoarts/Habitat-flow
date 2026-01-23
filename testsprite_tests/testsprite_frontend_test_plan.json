@@ -1,0 +1,394 @@
+[
+  {
+    "id": "TC001",
+    "title": "AchievementPopup displays correct achievement messages",
+    "description": "Verify that the AchievementPopup component renders and displays accurate achievement notifications when the user reaches habit milestones.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate user reaching a habit milestone in the app"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that AchievementPopup appears on screen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the achievement message content matches the expected milestone description"
+      },
+      {
+        "type": "action",
+        "description": "Simulate another achievement with different milestone"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure the AchievementPopup updates with the new achievement message correctly"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "SplashScreen displays correctly on app startup",
+    "description": "Ensure that the SplashScreen component shows immediately during app load and disappears smoothly once the main resources are ready, with no errors or delays.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Launch the application"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the SplashScreen component is visible at startup"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no errors occur during splash screen display"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the SplashScreen is removed promptly after resources finish loading"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Navigation via BottomNav is functional and responsive",
+    "description": "Check that the BottomNav component allows users to navigate to all main app pages correctly on various screen sizes.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load the application on desktop resolution"
+      },
+      {
+        "type": "action",
+        "description": "Click each BottomNav item (Home, Settings, Profile, Progress, AI Assistant)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the app navigates to the corresponding page for each item click"
+      },
+      {
+        "type": "action",
+        "description": "Resize viewport to mobile resolution"
+      },
+      {
+        "type": "action",
+        "description": "Repeat clicking each BottomNav item"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm navigation works correctly and UI remains usable"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "PushNotificationButton requests permission and manages subscriptions",
+    "description": "Validate that clicking the PushNotificationButton prompts the user for push notification permission, subscribes appropriately if granted, and unsubscribes if permission is revoked.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Click PushNotificationButton when notifications are not yet enabled"
+      },
+      {
+        "type": "assertion",
+        "description": "Browser requests push notification permission"
+      },
+      {
+        "type": "action",
+        "description": "Grant permission"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify subscription request is sent to backend PushService"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure subscription is stored successfully on backend"
+      },
+      {
+        "type": "action",
+        "description": "Click PushNotificationButton when permission is already granted"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no new permission prompt appears and current subscription status is shown correctly"
+      },
+      {
+        "type": "action",
+        "description": "Revoke permission in browser settings"
+      },
+      {
+        "type": "action",
+        "description": "Click PushNotificationButton again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify permission prompt appears again or subscription is correctly unsubscribed on backend"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "usePushNotifications hook manages subscription lifecycle correctly",
+    "description": "Test that the custom React hook usePushNotifications correctly handles subscription status, updates on permission changes, and communicates with the backend service.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Mount a test component using usePushNotifications hook"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm initial subscription status is retrieved accurately"
+      },
+      {
+        "type": "action",
+        "description": "Simulate user granting push notification permission"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify hook updates subscription state and calls backend subscribe endpoint"
+      },
+      {
+        "type": "action",
+        "description": "Simulate user revoking permission"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify hook updates subscription state and calls backend unsubscribe endpoint"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "HomePage loads and displays main content correctly",
+    "description": "Verify the HomePage renders on app launch with appropriate content and no errors across devices.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to HomePage"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify main landing content is rendered and visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Check no rendering errors appear"
+      },
+      {
+        "type": "action",
+        "description": "Resize window to different viewports"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm layout remains user-friendly and content is accessible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "ProfilePage allows viewing and editing user profile details",
+    "description": "Ensure that users can view their profile information and successfully edit and save changes.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to ProfilePage"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify current user profile information is displayed correctly"
+      },
+      {
+        "type": "action",
+        "description": "Edit profile fields such as username, display name, or preferences"
+      },
+      {
+        "type": "action",
+        "description": "Submit changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify success notification or confirmation"
+      },
+      {
+        "type": "action",
+        "description": "Refresh or reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes persist and display reflects latest profile data"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "SettingsPage allows configuration changes persistently",
+    "description": "Test that users can update app preferences in the SettingsPage and their settings are saved and reapplied correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to SettingsPage"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify current settings are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Change one or multiple preference settings (e.g., notification preferences, theme)"
+      },
+      {
+        "type": "action",
+        "description": "Save or apply changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Check confirmation message that changes are saved"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page or app"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that modified settings are kept and applied"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "ProgressPage renders accurate, real-time habit tracking data",
+    "description": "Validate that the ProgressPage correctly displays up-to-date visual statistics and habit progress reflecting user data.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to ProgressPage"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify habit tracking data and statistics are shown"
+      },
+      {
+        "type": "action",
+        "description": "Simulate user completing new habit entries or progress"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify ProgressPage updates immediately or on refresh with latest habit data"
+      },
+      {
+        "type": "action",
+        "description": "Test edge cases such as no habits tracked or excessively high totals"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify ProgressPage handles these cases gracefully without errors"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "AiAssistantPage provides accurate and relevant responses",
+    "description": "Check that the AI Assistant powered by OpenAI and Gemini APIs responds appropriately to user queries and habit coaching interactions.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to AiAssistantPage"
+      },
+      {
+        "type": "action",
+        "description": "Input a habit coaching question or request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the AI assistant returns a relevant and meaningful response"
+      },
+      {
+        "type": "action",
+        "description": "Input a complex or ambiguous question"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the AI assistant either clarifies or provides an appropriate fallback response"
+      },
+      {
+        "type": "action",
+        "description": "Simulate network or API error in AI services"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that AiAssistantPage handles errors gracefully and notifies the user"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "SEO component updates and injects correct metadata dynamically",
+    "description": "Validate that the SEO component using react-helmet-async properly sets meta tags corresponding to each main page and updates them on navigation.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load each primary page (Home, Profile, Settings, Progress, AI Assistant)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page metadata (title, description, keywords) matches page content"
+      },
+      {
+        "type": "action",
+        "description": "Navigate between pages using the app navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure metadata updates dynamically without requiring full page reload"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Layout component renders consistently and integrates navigation correctly",
+    "description": "Confirm that the main Layout component wraps the application pages properly, including rendering BottomNav and other common UI elements consistently across device types.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Render application pages within Layout component on desktop"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Layout displays BottomNav and other common elements"
+      },
+      {
+        "type": "action",
+        "description": "Resize viewport to mobile"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm Layout adjusts and BottomNav remains accessible and functional"
+      }
+    ]
+  }
+]

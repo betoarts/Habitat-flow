@@ -49,7 +49,7 @@ export const Support: React.FC<SupportProps> = ({ onBack }) => {
       />
 
       {/* Header */}
-      <div className="px-6 pt-10 pb-4 bg-white dark:bg-gray-800 shadow-sm flex items-center gap-4 z-10 sticky top-0 transition-colors">
+      <div className="px-6 pt-5 pb-4 bg-white dark:bg-gray-800 shadow-sm flex items-center gap-4 z-10 sticky top-0 transition-colors">
         <button
           onClick={onBack}
           className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300"
