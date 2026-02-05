@@ -22,6 +22,44 @@ export interface PushNotificationState {
     isStandalone: boolean;
 }
 
+// ============================================================================
+// CONSTANTES E UTILITÁRIOS DE LOCALSTORAGE
+// ============================================================================
+
+const STORAGE_KEY = 'habitflow_push_subscription';
+
+/**
+ * Salvar subscription no localStorage
+ */
+function saveSubscriptionToStorage(subscription: PushSubscription | null): void {
+    try {
+        if (subscription) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(subscription.toJSON()));
+        } else {
+            localStorage.removeItem(STORAGE_KEY);
+        }
+    } catch (e) {
+        console.warn('[Push] Erro ao salvar subscription no localStorage:', e);
+    }
+}
+
+/**
+ * Recuperar subscription do localStorage
+ */
+function loadSubscriptionFromStorage(): PushSubscription | null {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            // localStorage retorna um objeto JSON serializado, não é um PushSubscription real
+            // Vamos usar apenas como referência para validar
+            return JSON.parse(stored) as PushSubscription;
+        }
+    } catch (e) {
+        console.warn('[Push] Erro ao carregar subscription do localStorage:', e);
+    }
+    return null;
+}
+
 export interface PushNotificationActions {
     /** Solicitar permissão para notificações */
     requestPermission: () => Promise<NotificationPermission>;
@@ -147,11 +185,25 @@ export function usePushNotifications(): PushNotificationState & PushNotification
                     // Log para debug
                     if (currentSubscription) {
                         console.log('[Push] Subscription recuperada do Service Worker:', currentSubscription.endpoint);
+                        // Salvar no localStorage também
+                        saveSubscriptionToStorage(currentSubscription);
                     } else {
-                        console.log('[Push] Nenhuma subscription ativa encontrada');
+                        console.log('[Push] Nenhuma subscription ativa encontrada no Service Worker');
+                        // Tentar carregar do localStorage como fallback
+                        const storedSubscription = loadSubscriptionFromStorage();
+                        if (storedSubscription) {
+                            console.log('[Push] Subscription recuperada do localStorage:', storedSubscription.endpoint);
+                            currentSubscription = storedSubscription;
+                        }
                     }
                 } catch (e) {
-                    console.error('[Push] Erro ao obter subscription existente:', e);
+                    console.error('[Push] Erro ao obter subscription:', e);
+                    // Tentar localStorage como último recurso
+                    const storedSubscription = loadSubscriptionFromStorage();
+                    if (storedSubscription) {
+                        console.log('[Push] Subscription recuperada do localStorage (fallback)');
+                        currentSubscription = storedSubscription;
+                    }
                 }
             }
 
@@ -311,6 +363,9 @@ export function usePushNotifications(): PushNotificationState & PushNotification
 
             console.log('[Push] Subscription enviada ao backend com sucesso');
 
+            // Salvar subscription no localStorage
+            saveSubscriptionToStorage(subscription);
+
             setState(prev => ({
                 ...prev,
                 subscription,
@@ -359,6 +414,9 @@ export function usePushNotifications(): PushNotificationState & PushNotification
             }
 
             console.log('[Push] Subscription cancelada com sucesso');
+
+            // Remover do localStorage
+            saveSubscriptionToStorage(null);
 
             setState(prev => ({
                 ...prev,
