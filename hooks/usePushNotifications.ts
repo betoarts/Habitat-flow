@@ -139,10 +139,17 @@ export function usePushNotifications(): PushNotificationState & PushNotification
             // Tentar obter subscription existente
             let currentSubscription: PushSubscription | null = null;
 
-            if (isSupported && permission === 'granted') {
+            if (isSupported) {
                 try {
                     const registration = await navigator.serviceWorker.ready;
                     currentSubscription = await registration.pushManager.getSubscription();
+                    
+                    // Log para debug
+                    if (currentSubscription) {
+                        console.log('[Push] Subscription recuperada do Service Worker:', currentSubscription.endpoint);
+                    } else {
+                        console.log('[Push] Nenhuma subscription ativa encontrada');
+                    }
                 } catch (e) {
                     console.error('[Push] Erro ao obter subscription existente:', e);
                 }
@@ -160,6 +167,43 @@ export function usePushNotifications(): PushNotificationState & PushNotification
 
         checkSupport();
     }, []);
+
+    // ============================================================================
+    // Sincronizar estado da subscription periodicamente
+    // Garante que o estado permaneça correto mesmo se o Service Worker reiniciar
+    // ============================================================================
+    useEffect(() => {
+        if (!state.isSupported) return;
+
+        // Verificar subscription a cada 30 segundos
+        const syncInterval = setInterval(async () => {
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.getSubscription();
+
+                setState(prev => {
+                    // Só atualizar se houve mudança
+                    if ((prev.subscription === null && subscription === null) ||
+                        (prev.subscription && subscription && prev.subscription.endpoint === subscription.endpoint)) {
+                        return prev; // Sem mudanças, não atualizar
+                    }
+
+                    if (subscription) {
+                        console.log('[Push] Subscription sincronizada:', subscription.endpoint);
+                    }
+
+                    return {
+                        ...prev,
+                        subscription
+                    };
+                });
+            } catch (e) {
+                console.warn('[Push] Erro ao sincronizar subscription:', e);
+            }
+        }, 30000); // 30 segundos
+
+        return () => clearInterval(syncInterval);
+    }, [state.isSupported]);
 
     // ============================================================================
     // Solicitar permissão para notificações
