@@ -2,7 +2,8 @@
  * Serviço para envio de notificações push do frontend para o backend
  */
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://habitflow.servicestec.pro')
+// Use relative paths by default for better portability
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '')
     .replace(/\/api\/?$/, '')
     .replace(/\/$/, '');
 

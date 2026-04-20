@@ -76,8 +76,8 @@ export interface PushNotificationActions {
 // ============================================================================
 
 // URL base da API (ajustar conforme ambiente)
-// Removemos trailing slash e sufixo /api se existirem para evitar duplicidade (ex: /api/api/subscribe)
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://habitflow.servicestec.pro')
+// Usamos caminhos relativos por padrão para melhor portabilidade (ex: /api/subscribe)
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '')
     .replace(/\/api\/?$/, '')
     .replace(/\/$/, '');
 
