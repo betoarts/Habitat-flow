@@ -95,7 +95,7 @@ app.use(cors({
         'http://localhost:3003',
         'http://localhost:5173',
         'http://127.0.0.1:3000',
-        'https://habitflow.servicestec.pro'
+        'https://habitat-flow.vercel.app'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],

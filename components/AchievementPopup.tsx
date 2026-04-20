@@ -44,7 +44,7 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement,
 
   const handleShareWhatsApp = () => {
     if (!achievement) return;
-    const text = `🏆 Acabei de desbloquear a conquista "${achievement.title}" no HabitFlow!\n\n✨ ${achievement.description}\n\nJunte-se a mim e transforme sua rotina! 🚀\nhttps://habitflow.servicestec.pro/`;
+    const text = `🏆 Acabei de desbloquear a conquista "${achievement.title}" no HabitFlow!\n\n✨ ${achievement.description}\n\nJunte-se a mim e transforme sua rotina! 🚀\nhttps://habitat-flow.vercel.app/`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   };

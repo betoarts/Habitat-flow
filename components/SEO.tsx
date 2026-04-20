@@ -17,8 +17,8 @@ export default function SEO({
     description,
     name = 'HabitFlow',
     type = 'website',
-    image = 'https://habitflow.servicestec.pro/icon-512x512.png',
-    url = 'https://habitflow.servicestec.pro/',
+    image = 'https://habitat-flow.vercel.app/icon-512x512.png',
+    url = 'https://habitat-flow.vercel.app/',
     keywords = 'hábitos, rastreador, produtividade, bem-estar, rotina, metas, gamificação',
     author = 'Humberto'
 }: SEOProps) {

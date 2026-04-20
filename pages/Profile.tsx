@@ -117,7 +117,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, habits, onOpenSettings }
   };
 
   const handleShareAchievement = (title: string, description: string) => {
-    const text = `🏆 Acabei de desbloquear a conquista "${title}" no HabitFlow!\n\n✨ ${description}\n\nJunte-se a mim e transforme sua rotina! 🚀\nhttps://habitflow.servicestec.pro/`;
+    const text = `🏆 Acabei de desbloquear a conquista "${title}" no HabitFlow!\n\n✨ ${description}\n\nJunte-se a mim e transforme sua rotina! 🚀\nhttps://habitat-flow.vercel.app/`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   };

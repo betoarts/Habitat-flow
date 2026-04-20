@@ -88,7 +88,7 @@ export const Progress: React.FC<ProgressProps> = ({ habits }) => {
   const currentTotalStreak = habits.reduce((acc, h) => acc + h.streak, 0);
 
   const handleShareStats = () => {
-    const text = `📊 Minhas Estatísticas no HabitFlow:\n\n🔥 Recorde: ${longestStreak} dias\n⚡ XP Total: ${currentTotalStreak}\n📈 Consistência: ${consistencyScore}%\n🌟 Melhor Dia: ${bestDayName}\n🎯 Foco: ${dominantCategory}\n\nComece sua jornada você também! 🚀\nhttps://habitflow.servicestec.pro/`;
+    const text = `📊 Minhas Estatísticas no HabitFlow:\n\n🔥 Recorde: ${longestStreak} dias\n⚡ XP Total: ${currentTotalStreak}\n📈 Consistência: ${consistencyScore}%\n🌟 Melhor Dia: ${bestDayName}\n🎯 Foco: ${dominantCategory}\n\nComece sua jornada você também! 🚀\nhttps://habitat-flow.vercel.app/`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   };
