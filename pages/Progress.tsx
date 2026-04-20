@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, RadialBarChar
 import { format, subDays, eachDayOfInterval, isSameDay, parseISO, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CATEGORY_COLORS, CATEGORY_ICONS } from '../constants';
-import { Calendar, Zap, PieChart, TrendingUp } from 'lucide-react';
+import { Calendar, Zap, PieChart, TrendingUp, Share2 } from 'lucide-react';
 import SEO from '../components/SEO';
 
 interface ProgressProps {
@@ -87,14 +87,27 @@ export const Progress: React.FC<ProgressProps> = ({ habits }) => {
   const longestStreak = Math.max(...habits.map(h => h.bestStreak), 0);
   const currentTotalStreak = habits.reduce((acc, h) => acc + h.streak, 0);
 
+  const handleShareStats = () => {
+    const text = `📊 Minhas Estatísticas no HabitFlow:\n\n🔥 Recorde: ${longestStreak} dias\n⚡ XP Total: ${currentTotalStreak}\n📈 Consistência: ${consistencyScore}%\n🌟 Melhor Dia: ${bestDayName}\n🎯 Foco: ${dominantCategory}\n\nComece sua jornada você também! 🚀\nhttps://habitflow.servicestec.pro/`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 overflow-y-auto pb-24 transition-colors duration-300">
       <SEO
         title="Estatísticas | HabitFlow"
         description="Analise seu desempenho, veja seus dias mais produtivos e acompanhe sua consistência."
       />
-      <div className="px-6 pt-10 pb-4">
+      <div className="px-6 pt-10 pb-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Estatísticas</h1>
+        <button
+          onClick={handleShareStats}
+          className="flex items-center gap-2 px-3 py-1.5 bg-green-500 text-white rounded-full text-xs font-bold hover:bg-green-600 transition-colors shadow-md shadow-green-200 dark:shadow-none"
+        >
+          <Share2 size={14} />
+          WhatsApp
+        </button>
       </div>
 
       {/* Score Dashboard & Stats */}

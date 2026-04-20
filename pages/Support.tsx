@@ -4,6 +4,7 @@ import SEO from '../components/SEO';
 
 interface SupportProps {
   onBack: () => void;
+  onOpenPrivacy: () => void;
 }
 
 interface FaqItem {
@@ -29,12 +30,16 @@ const FAQS: FaqItem[] = [
     answer: "Sim! O HabitFlow usa inteligência artificial para analisar seus dados localmente e sugerir melhorias na sua rotina de forma gratuita."
   },
   {
+    question: "Como conectar a IA (Gemini ou OpenAI)?",
+    answer: "Vá em Configurações > Integrações IA. Lá você pode escolher entre Google Gemini ou OpenAI e colar sua chave de API (API Key). Isso desbloqueia recursos avançados como o Chat Coach e análises comportamentais dinâmicas."
+  },
+  {
     question: "Meus dados estão seguros?",
     answer: "Absolutamente. Seus hábitos e progresso são armazenados localmente no seu dispositivo. Nenhuma informação pessoal é vendida a terceiros."
   }
 ];
 
-export const Support: React.FC<SupportProps> = ({ onBack }) => {
+export const Support: React.FC<SupportProps> = ({ onBack, onOpenPrivacy }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const toggleFaq = (index: number) => {
@@ -141,7 +146,10 @@ export const Support: React.FC<SupportProps> = ({ onBack }) => {
             <ExternalLink size={14} />
           </button>
           <div className="h-px bg-gray-200 dark:bg-gray-700 my-1"></div>
-          <button className="w-full flex items-center justify-between py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-500 transition-colors">
+          <button
+            onClick={onOpenPrivacy}
+            className="w-full flex items-center justify-between py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-500 transition-colors"
+          >
             <div className="flex items-center gap-2">
               <FileText size={16} />
               <span>Política de Privacidade</span>

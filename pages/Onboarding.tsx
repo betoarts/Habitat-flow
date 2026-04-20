@@ -7,11 +7,12 @@ import { generateOnboardingInsight } from '../services/aiService';
 import SEO from '../components/SEO';
 
 interface OnboardingProps {
-  onComplete: (goals: HabitCategory[]) => void;
+  onComplete: (name: string, goals: HabitCategory[]) => void;
 }
 
 export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const { user, addHabit } = useAppContext();
+  const [name, setName] = useState('');
   const [selectedGoals, setSelectedGoals] = useState<HabitCategory[]>([]);
   const [step, setStep] = useState(0);
   const [loadingAi, setLoadingAi] = useState(false);
@@ -45,7 +46,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         reminders: []
       });
     }
-    onComplete(selectedGoals);
+    onComplete(name, selectedGoals);
   };
 
   // Step 0: Friendly Welcome (Matches App Style)
@@ -81,11 +82,27 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed max-w-xs">
               Pequenos passos diários transformam sua rotina. Comece sua jornada hoje.
             </p>
+
+            {/* Name Input Field */}
+            <div className="w-full max-w-xs mt-10 space-y-2 animate-fade-in">
+              <label className="block text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest text-left ml-1">Como devemos te chamar?</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Seu nome"
+                className="w-full p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/20 outline-none transition-all text-gray-900 dark:text-white font-medium"
+              />
+            </div>
           </div>
 
           <button
             onClick={() => setStep(1)}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-200 dark:shadow-blue-900/30 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
+            disabled={!name.trim()}
+            className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-3
+              ${name.trim() 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 dark:shadow-blue-900/30' 
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed shadow-none'}`}
           >
             Começar Agora
             <ArrowRight size={20} strokeWidth={3} />

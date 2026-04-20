@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Achievement } from '../types';
-import { Zap, Trophy, Target, Flame, Star, Crown, X } from 'lucide-react';
+import { Zap, Trophy, Target, Flame, Star, Crown, X, Share2 } from 'lucide-react';
 import Confetti from 'react-dom-confetti';
 import { sendPushNotification } from '../services/pushService';
 
@@ -42,6 +42,13 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement,
     setTimeout(onClose, 300); // Wait for animation
   };
 
+  const handleShareWhatsApp = () => {
+    if (!achievement) return;
+    const text = `🏆 Acabei de desbloquear a conquista "${achievement.title}" no HabitFlow!\n\n✨ ${achievement.description}\n\nJunte-se a mim e transforme sua rotina! 🚀\nhttps://habitflow.servicestec.pro/`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   if (!achievement) return null;
 
   const Icon = ICONS[achievement.iconName] || Star;
@@ -70,8 +77,18 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement,
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{achievement.title}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">{achievement.description}</p>
 
-            <div className="inline-flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/30 px-4 py-2 rounded-full">
-              <span className="text-yellow-600 dark:text-yellow-400 font-bold text-sm">+{achievement.xpReward} XP</span>
+            <div className="flex flex-col gap-3 mt-6">
+              <button
+                onClick={handleShareWhatsApp}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-green-500 text-white rounded-xl font-bold text-sm hover:bg-green-600 transition-colors shadow-lg shadow-green-100 dark:shadow-none"
+              >
+                <Share2 size={18} />
+                Compartilhar no WhatsApp
+              </button>
+              
+              <div className="inline-flex items-center justify-center gap-2 bg-yellow-50 dark:bg-yellow-900/30 px-4 py-2 rounded-full mx-auto">
+                <span className="text-yellow-600 dark:text-yellow-400 font-bold text-sm">+{achievement.xpReward} XP</span>
+              </div>
             </div>
           </div>
         </div>

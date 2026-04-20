@@ -14,6 +14,7 @@ interface HomeProps {
   onToggleHabit: (id: string) => void;
   onAddHabit: () => void;
   onEditHabit: (habit: Habit) => void;
+  onOpenSettings: () => void;
 }
 
 const confettiConfig = {
@@ -30,7 +31,7 @@ const confettiConfig = {
   colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"]
 };
 
-export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHabit, onEditHabit }) => {
+export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHabit, onEditHabit, onOpenSettings }) => {
   const { smartNotification, dismissNotification } = useAppContext();
   const [completedAnim, setCompletedAnim] = useState<string | null>(null);
   const [visibleRemindersId, setVisibleRemindersId] = useState<string | null>(null);
@@ -179,9 +180,78 @@ export const Home: React.FC<HomeProps> = ({ user, habits, onToggleHabit, onAddHa
         {/* Habits Items */}
         <div className="space-y-3 pb-8">
           {habits.length === 0 ? (
-            <div className="text-center py-10 text-gray-400 dark:text-gray-500">
-              <p>Nenhum hábito criado ainda.</p>
-              <button onClick={onAddHabit} className="text-blue-500 font-semibold mt-2">Criar primeiro hábito</button>
+            <div className="animate-fade-in space-y-6">
+              <div className="bg-blue-50 dark:bg-blue-900/10 rounded-3xl p-6 border border-blue-100 dark:border-blue-800/30 text-center">
+                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600 dark:text-blue-400">
+                  <Sparkles size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Bem-vindo ao HabitFlow!</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+                  Sua jornada para uma rotina melhor começa aqui. Vamos deixar tudo pronto?
+                </p>
+
+                {/* Checklist de Início Rápido */}
+                <div className="space-y-3 text-left">
+                  <button
+                    onClick={onOpenSettings}
+                    className="w-full flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                      <Pencil size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-gray-900 dark:text-white text-sm">Personalize seu Perfil</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Dê um nome e foto ao seu app.</p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                      <Plus size={14} className="text-gray-400" />
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={onAddHabit}
+                    className="w-full flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-green-400 dark:hover:border-green-500 transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform">
+                      <Plus size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-gray-900 dark:text-white text-sm">Primeiro Hábito</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">O que você vai conquistar hoje?</p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                      <Plus size={14} className="text-gray-400" />
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={onOpenSettings}
+                    className="w-full flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
+                      <Sparkles size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-gray-900 dark:text-white text-sm">IA Opcional (Gemini/OpenAI)</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Dicas personalizadas com sua API Key.</p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                      <Plus size={14} className="text-gray-400" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Dica do Dia Visual */}
+              <div className="bg-gradient-to-br from-gray-800 to-black p-5 rounded-3xl text-white flex gap-4 items-center">
+                <div className="bg-yellow-400 p-3 rounded-2xl text-black">
+                  <Flame size={24} fill="currentColor" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-0.5">Dica Rápida</p>
+                  <p className="text-sm font-medium leading-tight">Comece com um hábito tão fácil que seja impossível não fazer.</p>
+                </div>
+              </div>
             </div>
           ) : (
             habits.map((habit) => {

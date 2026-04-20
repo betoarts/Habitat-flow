@@ -116,6 +116,12 @@ export const Profile: React.FC<ProfileProps> = ({ user, habits, onOpenSettings }
     doc.save(`HabitFlow_Relatorio_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
   };
 
+  const handleShareAchievement = (title: string, description: string) => {
+    const text = `🏆 Acabei de desbloquear a conquista "${title}" no HabitFlow!\n\n✨ ${description}\n\nJunte-se a mim e transforme sua rotina! 🚀\nhttps://habitflow.servicestec.pro/`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <SEO
@@ -213,12 +219,20 @@ export const Profile: React.FC<ProfileProps> = ({ user, habits, onOpenSettings }
               return (
                 <div
                   key={ach.id}
+                  onClick={() => isUnlocked && handleShareAchievement(ach.title, ach.description)}
                   className={`p-3 rounded-2xl border transition-all duration-300 flex flex-col gap-2 relative overflow-hidden group
                     ${isUnlocked
-                      ? 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 shadow-sm'
+                      ? 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 shadow-sm cursor-pointer hover:border-green-400 dark:hover:border-green-600'
                       : 'bg-gray-50 dark:bg-gray-800/30 border-transparent opacity-60 grayscale'
                     }`}
                 >
+                  {isUnlocked && (
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-green-500 text-white p-1 rounded-full shadow-sm">
+                        <Share2 size={10} />
+                      </div>
+                    </div>
+                  )}
                   <div className="flex justify-between items-start">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isUnlocked ? ach.color : 'bg-gray-200 dark:bg-gray-700 text-gray-400'}`}>
                       <Icon size={16} fill={isUnlocked ? 'currentColor' : 'none'} />

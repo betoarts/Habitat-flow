@@ -25,6 +25,14 @@ export const LEVELS = [
   { level: 5, xp: 1500, title: 'Mestre do Foco' },
   { level: 6, xp: 2500, title: 'Guru da Rotina' },
   { level: 7, xp: 4000, title: 'Lenda Viva' },
+  { level: 8, xp: 6000, title: 'Guerreiro da Disciplina' },
+  { level: 9, xp: 8500, title: 'Estrategista de Hábitos' },
+  { level: 10, xp: 12000, title: 'Inabalável' },
+  { level: 11, xp: 16000, title: 'Sentinela do Progresso' },
+  { level: 12, xp: 21000, title: 'Titã da Constância' },
+  { level: 13, xp: 27000, title: 'Oráculo da Rotina' },
+  { level: 14, xp: 35000, title: 'Arquiteto do Destino' },
+  { level: 15, xp: 45000, title: 'Divindade do Hábito' },
 ];
 
 export const ACHIEVEMENTS: Achievement[] = [
@@ -59,6 +67,46 @@ export const ACHIEVEMENTS: Achievement[] = [
     iconName: 'Crown',
     xpReward: 1000,
     color: 'text-purple-500 bg-purple-100'
+  },
+  {
+    id: 'habit_collector',
+    title: 'Colecionador',
+    description: 'Tenha 10 hábitos ativos simultaneamente.',
+    iconName: 'Layers',
+    xpReward: 500,
+    color: 'text-indigo-500 bg-indigo-100'
+  },
+  {
+    id: 'early_bird',
+    title: 'Madrugador',
+    description: 'Complete um hábito antes das 7:00 da manhã.',
+    iconName: 'Sun',
+    xpReward: 250,
+    color: 'text-amber-500 bg-amber-100'
+  },
+  {
+    id: 'perfect_week',
+    title: 'Semana Perfeita',
+    description: 'Complete todos os seus hábitos todos os dias por 7 dias.',
+    iconName: 'CheckCircle',
+    xpReward: 800,
+    color: 'text-emerald-500 bg-emerald-100'
+  },
+  {
+    id: 'century_club',
+    title: 'Clube dos 100',
+    description: 'Alcance um streak de 100 dias em qualquer hábito.',
+    iconName: 'Trophy',
+    xpReward: 5000,
+    color: 'text-rose-500 bg-rose-100'
+  },
+  {
+    id: 'multi_tasker',
+    title: 'Multitarefa Real',
+    description: 'Complete 10 hábitos em um único dia.',
+    iconName: 'Activity',
+    xpReward: 600,
+    color: 'text-cyan-500 bg-cyan-100'
   },
   {
     id: 'high_five',

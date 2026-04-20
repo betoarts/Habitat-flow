@@ -10,7 +10,7 @@ interface AppContextType {
   isOnboardingComplete: boolean;
   latestAchievement: Achievement | null;
   smartNotification: string | null;
-  completeOnboarding: (goals: HabitCategory[]) => void;
+  completeOnboarding: (name: string, goals: HabitCategory[]) => void;
   toggleHabit: (id: string) => void;
   addHabit: (habit: Omit<Habit, 'id' | 'completedDates' | 'streak' | 'bestStreak'>) => void;
   updateHabit: (habit: Habit) => void;
@@ -18,15 +18,16 @@ interface AppContextType {
   clearLatestAchievement: () => void;
   dismissNotification: () => void;
   deleteHabit: (id: string) => void;
+  clearAllData: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const INITIAL_USER: User = {
-  name: 'Humberto',
-  avatar: 'https://i.pravatar.cc/300',
-  xp: 150,
-  level: 2,
+  name: 'Usuário',
+  avatar: 'https://ui-avatars.com/api/?name=User&background=random',
+  xp: 0,
+  level: 1,
   joinedDate: new Date().toISOString(),
   goals: [],
   isOnboarded: false,
@@ -76,8 +77,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [user.name, user.isOnboarded]);
 
-  const completeOnboarding = (goals: HabitCategory[]) => {
-    setUser(prev => ({ ...prev, goals, isOnboarded: true }));
+  const completeOnboarding = (name: string, goals: HabitCategory[]) => {
+    setUser(prev => ({ 
+      ...prev, 
+      name, 
+      goals, 
+      isOnboarded: true,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
+    }));
   };
 
   const updateUser = (updates: Partial<User>) => {
@@ -115,6 +122,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         case 'monthly_master':
           // Check if any habit has streak >= 30
           if (currentHabits.some(h => h.streak >= 30)) unlocked = true;
+          break;
+        case 'habit_collector':
+          // Check if user has 10 or more habits
+          if (currentHabits.length >= 10) unlocked = true;
+          break;
+        case 'early_bird':
+          // Check if any completion today was before 7:00
+          const now = new Date();
+          if (now.getHours() < 7) {
+            // This is tricky because toggleHabit is called when checked. 
+            // We check if the current action is a completion and it's early.
+            unlocked = true; 
+          }
+          break;
+        case 'perfect_week':
+          // Check if all habits were completed for the last 7 days
+          const last7Days = Array.from({ length: 7 }, (_, i) => format(subDays(new Date(), i), 'yyyy-MM-dd'));
+          const isPerfect = currentHabits.length > 0 && currentHabits.every(h => 
+            last7Days.every(date => h.completedDates.includes(date))
+          );
+          if (isPerfect) unlocked = true;
+          break;
+        case 'century_club':
+          // Check if any habit has streak >= 100
+          if (currentHabits.some(h => h.streak >= 100)) unlocked = true;
+          break;
+        case 'multi_tasker':
+          // Check if 10 habits completed today
+          const completedTodayTen = currentHabits.filter(h => h.completedDates.includes(today)).length;
+          if (completedTodayTen >= 10) unlocked = true;
           break;
         case 'high_five':
           // Check if 5 habits completed today
@@ -255,6 +292,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setHabits(prev => prev.filter(h => h.id !== id));
   };
 
+  const clearAllData = () => {
+    localStorage.removeItem('habitflow_user');
+    localStorage.removeItem('habitflow_habits');
+    localStorage.removeItem('habitflow_theme');
+    localStorage.removeItem('habitflow_gemini_api_key');
+    localStorage.removeItem('habitflow_openai_api_key');
+    localStorage.removeItem('habitflow_ai_provider');
+
+    setUser(INITIAL_USER);
+    setHabits(MOCK_HABITS);
+    setSmartNotification(null);
+    setLatestAchievement(null);
+    
+    // Force reload to ensure everything is clean and onboarding restarts if needed
+    window.location.reload();
+  };
+
   const clearLatestAchievement = () => setLatestAchievement(null);
 
   return (
@@ -268,6 +322,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateHabit,
       updateUser,
       deleteHabit,
+      clearAllData,
       latestAchievement,
       clearLatestAchievement,
       smartNotification,

@@ -12,11 +12,12 @@ import PushNotificationButton from '../components/PushNotificationButton';
 interface SettingsProps {
   onBack: () => void;
   onOpenSupport: () => void;
+  onOpenPrivacy: () => void;
   user: UserType;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user }) => {
-  const { updateUser } = useAppContext();
+export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, onOpenPrivacy, user }) => {
+  const { updateUser, clearAllData } = useAppContext();
   // const [notifications, setNotifications] = useState(true); // Removido toggle fictício
   const [loadingTip, setLoadingTip] = useState(false);
   const [loadingReminder, setLoadingReminder] = useState(false);
@@ -163,6 +164,12 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
 
     setApiKeyState('');
     setHasKey(false);
+  };
+
+  const handleDeleteAllData = () => {
+    if (window.confirm('Tem certeza que deseja apagar todos os seus dados? Esta ação não pode ser desfeita.')) {
+      clearAllData();
+    }
   };
 
   if (isEditing) {
@@ -337,7 +344,10 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
               </div>
               <ChevronRight size={20} className="text-gray-400" />
             </button>
-            <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <button
+              onClick={onOpenPrivacy}
+              className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
                   <Shield size={20} />
@@ -566,7 +576,10 @@ export const Settings: React.FC<SettingsProps> = ({ onBack, onOpenSupport, user 
             Sair da conta
           </button>
 
-          <button className="w-full flex items-center justify-center p-4 rounded-2xl text-red-400 text-sm hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors gap-2">
+          <button 
+            onClick={handleDeleteAllData}
+            className="w-full flex items-center justify-center p-4 rounded-2xl text-red-400 text-sm hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors gap-2"
+          >
             <Trash2 size={16} />
             Apagar todos os dados
           </button>

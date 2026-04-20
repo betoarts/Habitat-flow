@@ -8,6 +8,7 @@ import { Profile } from './pages/Profile';
 import { Onboarding } from './pages/Onboarding';
 import { Settings } from './pages/Settings';
 import { Support } from './pages/Support';
+import { Privacy } from './pages/Privacy';
 import { SplashScreen } from './components/SplashScreen';
 import { TestPushHook } from './components/TestPushHook';
 import { AchievementPopup } from './components/AchievementPopup';
@@ -71,7 +72,7 @@ const MainApp = () => {
   if (!isOnboardingComplete) {
     return (
       <Layout>
-        <Onboarding onComplete={completeOnboarding} />
+        <Onboarding onComplete={(name, goals) => completeOnboarding(name, goals)} />
       </Layout>
     );
   }
@@ -177,7 +178,7 @@ const MainApp = () => {
   const renderContent = () => {
     switch (currentTab) {
       case 'home':
-        return <Home user={user} habits={habits} onToggleHabit={toggleHabit} onAddHabit={() => setShowAddModal(true)} onEditHabit={handleEditHabit} />;
+        return <Home user={user} habits={habits} onToggleHabit={toggleHabit} onAddHabit={() => setShowAddModal(true)} onEditHabit={handleEditHabit} onOpenSettings={() => setCurrentTab('settings')} />;
       case 'progress':
         return <Progress habits={habits} />;
       case 'ai':
@@ -185,9 +186,11 @@ const MainApp = () => {
       case 'profile':
         return <Profile user={user} habits={habits} onOpenSettings={() => setCurrentTab('settings')} />;
       case 'settings':
-        return <Settings onBack={() => setCurrentTab('profile')} onOpenSupport={() => setCurrentTab('support')} user={user} />;
+        return <Settings onBack={() => setCurrentTab('profile')} onOpenSupport={() => setCurrentTab('support')} onOpenPrivacy={() => setCurrentTab('privacy')} user={user} />;
       case 'support':
-        return <Support onBack={() => setCurrentTab('settings')} />;
+        return <Support onBack={() => setCurrentTab('settings')} onOpenPrivacy={() => setCurrentTab('privacy')} />;
+      case 'privacy':
+        return <Privacy onBack={() => setCurrentTab('settings')} />;
       case 'test-push':
         return <TestPushHook />;
       default:
