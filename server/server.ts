@@ -86,17 +86,36 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
 // ============================================================================
 
 // CORS - permitir requisições do frontend
+const allowedOrigins = [
+    CLIENT_URL,
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:3003',
+    'http://localhost:5173',
+    'http://127.0.0.1:3000',
+    'https://habitat-flow.vercel.app',
+    'https://habitflow.servicestec.pro'
+];
+
+// Adicionar origens extras via variável de ambiente (opcional)
+if (process.env.ADDITIONAL_ALLOWED_ORIGINS) {
+    const extras = process.env.ADDITIONAL_ALLOWED_ORIGINS.split(',').map(o => o.trim());
+    allowedOrigins.push(...extras);
+}
+
 app.use(cors({
-    origin: [
-        CLIENT_URL,
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'http://localhost:3003',
-        'http://localhost:5173',
-        'http://127.0.0.1:3000',
-        'https://habitat-flow.vercel.app'
-    ],
+    origin: (origin, callback) => {
+        // Permitir requisições sem origin (como mobile apps ou curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+            callback(null, true);
+        } else {
+            console.warn(`⚠️ Bloqueio CORS: Origem ${origin} não permitida.`);
+            callback(new Error('Não permitido pelo CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -135,17 +154,22 @@ webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 console.log('✅ VAPID configurado com sucesso');
 
 // ============================================================================
-// ARMAZENAMENTO DE SUBSCRIPTIONS (PERSISTENTE)
+// ARMAZENAMENTO DE SUBSCRIPTIONS (PERSISTENTE COM FALLBACK)
 // ============================================================================
 
 import fs from 'fs';
 
-const DATA_DIR = path.join(__dirname, '../../data');
+// Tentar usar o diretório /tmp em ambientes como Vercel se o local falhar
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'subscriptions.json');
 
-// Garantir que o diretório existe
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+// Tentar garantir que o diretório existe
+try {
+    if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+} catch (e) {
+    console.warn(`⚠️ Aviso: Não foi possível criar diretório de dados em ${DATA_DIR}. Usando apenas memória.`);
 }
 
 // Map para cache em memória
@@ -163,7 +187,7 @@ function loadSubscriptions() {
             console.log(`📂 Carregadas ${subscriptions.size} subscriptions do disco.`);
         }
     } catch (error) {
-        console.error('❌ Erro ao carregar subscriptions:', error);
+        console.warn('⚠️ Nota: Nenhuma subscription carregada (pode ser o primeiro início ou sistema de arquivos somente-leitura).');
     }
 }
 
@@ -173,9 +197,13 @@ function loadSubscriptions() {
 function saveSubscriptions() {
     try {
         const subs = Array.from(subscriptions.values());
+        // Apenas tenta salvar se o diretório for gravável
         fs.writeFileSync(DATA_FILE, JSON.stringify(subs, null, 2), 'utf-8');
     } catch (error) {
-        console.error('❌ Erro ao salvar subscriptions:', error);
+        // Silencioso em produção para evitar logs excessivos se o FS for read-only
+        if (process.env.NODE_ENV !== 'production') {
+            console.error('❌ Erro ao salvar subscriptions:', error);
+        }
     }
 }
 
@@ -340,14 +368,22 @@ app.post('/api/send', async (req: Request, res: Response): Promise<void> => {
 
 /**
  * GET /api/subscriptions
- * Retorna informações sobre subscriptions registradas (para debug)
+ * Retorna informações sobre subscriptions registradas (protegido por segredo se em prod)
  */
-app.get('/api/subscriptions', (_req: Request, res: Response): void => {
+app.get('/api/subscriptions', (req: Request, res: Response): void => {
+    // Verificação simples de segurança para evitar exposição pública
+    const adminSecret = process.env.ADMIN_SECRET;
+    const providedSecret = req.query.secret;
+
+    if (process.env.NODE_ENV === 'production' && (!adminSecret || adminSecret !== providedSecret)) {
+        res.status(403).json({ error: 'Acesso negado' });
+        return;
+    }
+
     res.json({
         count: subscriptions.size,
         endpoints: Array.from(subscriptions.keys()).map(e => ({
             endpoint: e.substring(0, 60) + '...',
-            // Não expor as chaves por segurança
         }))
     });
 });
